@@ -41,8 +41,8 @@
     .meta{margin-top:10px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
     .tag{font-size:12px;color:var(--muted);border:1px solid var(--border);padding:4px 8px;border-radius:999px}
 
-    .soldOverlay{display:none;position:absolute;inset:0;background:rgba(11,13,18,.72);backdrop-filter: blur(2px);}
-    .soldStamp{position:absolute;top:12px;left:12px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);padding:8px 10px;border-radius:12px;font-weight:800;letter-spacing:.08em}
+    .soldOverlay{display:none;position:absolute;inset:0;background:rgba(11,13,18,.72);backdrop-filter: blur(2px);pointer-events: none;}
+    .soldStamp{position:absolute;top:12px;left:12px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);padding:8px 10px;border-radius:12px;font-weight:800;letter-spacing:.08em;pointer-events: none}
     .sold .soldOverlay{display:block}
     .sold .thumb img{filter:grayscale(1) contrast(.9) brightness(.85)}
     .sold .price{color:#ffc2c2}
