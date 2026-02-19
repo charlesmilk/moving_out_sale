@@ -37,14 +37,17 @@
     .titleRow{display:flex;gap:10px;align-items:flex-start}
     .title{margin:0;font-size:16px;line-height:1.25}
 
-    /* Price styling: old -> new */
-    .priceWrap{margin-left:auto;display:flex;gap:8px;align-items:baseline;flex-wrap:wrap;justify-content:flex-end}
-    .oldPrice{color:rgba(231,237,245,.55);text-decoration:line-through;text-decoration-thickness:2px;font-size:12px}
-    .newPrice{font-weight:800;font-size:16px;color:#d7f5df}
-
+    .priceWrap{margin-left:auto;display:flex;gap:10px;align-items:baseline;flex-wrap:wrap;justify-content:flex-end}
+    .oldPrice{
+      color:rgba(231,237,245,.62);
+      text-decoration:line-through;
+      text-decoration-thickness:2px;
+      font-size:14px;
+      font-weight:700;
+    }
+    .newPrice{font-weight:900;font-size:16px;color:#d7f5df}
     .desc{margin:8px 0 0;color:var(--muted);font-size:13px}
 
-    /* SOLD visuals */
     .soldOverlay{
       display:none;
       position:absolute;
@@ -75,7 +78,6 @@
     .sold .title{color:rgba(231,237,245,.75)}
     .sold .desc{color:rgba(154,164,178,.75)}
 
-    /* Admin controls on image */
     .adminBtnRow{
       position:absolute;
       bottom:10px;
@@ -100,7 +102,6 @@
     .btn{background:rgba(255,255,255,.06);border:1px solid var(--border);color:var(--text);padding:8px 10px;border-radius:12px;cursor:pointer}
     .btn:hover{border-color:rgba(255,255,255,.18)}
 
-    /* Modal */
     .modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.62);align-items:center;justify-content:center;padding:18px;z-index:50}
     .modal.open{display:flex}
     .dialog{max-width:980px;width:100%;background:rgba(17,21,37,.96);border:1px solid var(--border);border-radius:20px;overflow:hidden;box-shadow:0 18px 70px rgba(0,0,0,.55)}
@@ -128,11 +129,14 @@
     .asidePrice{margin:0 0 10px}
     .asideDesc{color:var(--muted);margin:0 0 14px}
 
-    .priceBlock{display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}
-    .priceBlock .oldPrice{font-size:13px}
-    .priceBlock .newPrice{font-size:20px}
+    .priceBlock{display:flex;gap:12px;align-items:baseline;flex-wrap:wrap}
+    .priceBlock .oldPrice{font-size:18px}
+    .priceBlock .newPrice{font-size:22px}
 
-    .kv{margin:10px 0 0;color:var(--muted);font-size:13px}
+    .sectionLabel{margin:12px 0 6px;color:rgba(231,237,245,.85);font-size:12px;letter-spacing:.06em;text-transform:uppercase}
+    .sectionBox{border:1px solid var(--border);border-radius:14px;padding:10px;background:rgba(255,255,255,.03)}
+    .kv{margin:0;color:var(--muted);font-size:13px}
+    .kv + .kv{margin-top:8px}
     .kv b{color:rgba(231,237,245,.85);font-weight:600}
     .kv a{color:var(--accent);text-decoration:none}
     .kv a:hover{text-decoration:underline}
@@ -150,12 +154,14 @@
       outline:none;
     }
     input:focus,textarea:focus{border-color:rgba(110,168,254,.55)}
+    .formNote{color:var(--muted);font-size:12px;margin:0}
+    .successNote{display:none;color:rgba(215,245,223,.9);font-size:12px;margin:8px 0 0}
+    .errorNote{display:none;color:rgba(255,194,194,.95);font-size:12px;margin:8px 0 0}
 
     .foot{max-width:1100px;margin:0 auto;padding:18px;color:var(--muted);font-size:12px}
     .hint{color:var(--muted);font-size:12px;margin:0}
     code{color:#cfe2ff}
 
-    /* Admin edit price modal */
     .miniModal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.62);align-items:center;justify-content:center;padding:18px;z-index:60}
     .miniModal.open{display:flex}
     .miniDialog{max-width:520px;width:100%;background:rgba(17,21,37,.98);border:1px solid var(--border);border-radius:18px;overflow:hidden;box-shadow:0 18px 70px rgba(0,0,0,.55)}
@@ -163,7 +169,6 @@
     .miniBody{padding:12px}
     .miniActions{display:flex;gap:10px;justify-content:flex-end;margin-top:10px}
 
-    /* Map section */
     .mapWrap{max-width:1100px;margin:0 auto;padding:10px 18px 40px}
     .mapCard{border:1px solid var(--border);border-radius:18px;overflow:hidden;background:rgba(255,255,255,.03);box-shadow:0 10px 30px rgba(0,0,0,.25)}
     .mapHeader{padding:12px 12px;border-bottom:1px solid var(--border)}
@@ -207,9 +212,7 @@
         <b>Collection available at</b>
         <span>The Gessner, 3 Watermead Way, London, N17 9RF</span>
       </div>
-      <iframe
-        loading="lazy"
-        referrerpolicy="no-referrer-when-downgrade"
+      <iframe loading="lazy" referrerpolicy="no-referrer-when-downgrade"
         src="https://www.google.com/maps?q=The%20Gessner%2C%203%20Watermead%20Way%2C%20London%2C%20N17%209RF&output=embed">
       </iframe>
     </div>
@@ -217,11 +220,10 @@
 
   <div class="foot">
     <p class="hint">
-      Admin: add <code>?admin=1</code>. You can mark SOLD items available again, and edit prices. SOLD items are non-interactive for visitors.
+      Admin: add <code>?admin=1</code>. You can mark items sold/available and edit prices. SOLD items are non-interactive for visitors.
     </p>
   </div>
 
-  <!-- Item Modal -->
   <div id="modal" class="modal" aria-hidden="true">
     <div class="dialog" role="dialog" aria-modal="true">
       <div class="dialogTop">
@@ -239,20 +241,20 @@
         </div>
         <aside>
           <h2 id="asideTitle" class="asideTitle"></h2>
-
           <div id="asidePrice" class="asidePrice"></div>
-
           <p id="asideDesc" class="asideDesc"></p>
 
-          <div id="asideDims" class="kv" style="display:none"></div>
-          <div id="asideLink" class="kv" style="display:none"></div>
+          <div id="itemSection" style="display:none">
+            <div class="sectionLabel">Item details</div>
+            <div class="sectionBox">
+              <div id="asideDims" class="kv" style="display:none"></div>
+              <div id="asideLink" class="kv" style="display:none"></div>
+            </div>
+          </div>
 
-          <!-- Netlify Forms -->
-          <form id="contact"
-                name="contact"
-                method="POST"
-                data-netlify="true"
-                data-netlify-honeypot="bot-field">
+          <div class="sectionLabel" style="margin-top:14px">Contact</div>
+
+          <form id="contact" name="contact" method="POST" data-netlify="true" data-netlify-honeypot="bot-field">
             <input type="hidden" name="form-name" value="contact" />
             <p style="display:none">
               <label>Don’t fill this out if you’re human: <input name="bot-field" /></label>
@@ -274,15 +276,16 @@
               <label for="f_msg">Message</label>
               <textarea id="f_msg" name="message" required></textarea>
             </div>
-            <button class="btn" type="submit">Send message</button>
-            <p class="hint">Tip: include your preferred pickup time.</p>
+            <button class="btn" type="submit" id="sendBtn">Send message</button>
+            <p class="formNote">Tip: include your preferred pickup time.</p>
+            <p class="successNote" id="formSuccess">Message sent. I’ll reply by email.</p>
+            <p class="errorNote" id="formError">Couldn’t send. Try again, or refresh and retry.</p>
           </form>
         </aside>
       </div>
     </div>
   </div>
 
-  <!-- Admin: Edit Prices Modal -->
   <div id="priceModal" class="miniModal" aria-hidden="true">
     <div class="miniDialog" role="dialog" aria-modal="true">
       <div class="miniTop">
@@ -362,20 +365,18 @@
       return true;
     }
 
-    const DEMO_ITEMS = [
-      {
-        id: "demo-1",
-        title: "Demo item (items function unavailable)",
-        price_gbp: 1,
-        original_price: null,
-        description: "If you see this, /.netlify/functions/items failed.",
-        dimensions: null,
-        item_link: null,
-        images: [],
-        sold: false,
-        sort_order: 10
-      }
-    ];
+    const DEMO_ITEMS = [{
+      id: "demo-1",
+      title: "Demo item (items function unavailable)",
+      price_gbp: 45,
+      original_price: 100,
+      description: "If you see this, /.netlify/functions/items failed.",
+      dimensions: "120cm x 60cm x 75cm",
+      item_link: null,
+      images: [],
+      sold: false,
+      sort_order: 10
+    }];
 
     let ITEMS = [];
 
@@ -420,20 +421,17 @@
         },
         body: JSON.stringify(payload)
       });
-      if (!res.ok) {
-        return { ok:false, status: res.status };
-      }
+      if (!res.ok) return { ok:false, status: res.status };
       return { ok:true, data: await res.json().catch(() => null) };
     }
 
-    async function markAvailable(item) {
+    async function setSold(item, sold) {
       setStatus("Updating…");
-      const r = await postAdminJson("/.netlify/functions/toggle-sold", { id: item.id, sold: false });
+      const r = await postAdminJson("/.netlify/functions/toggle-sold", { id: item.id, sold: !!sold });
       if (!r.ok) { setStatus("Update failed."); return; }
       await refreshItems();
     }
 
-    // Admin price edit modal
     const priceModal = document.getElementById("priceModal");
     const priceCloseBtn = document.getElementById("priceCloseBtn");
     const priceCancel = document.getElementById("priceCancel");
@@ -467,7 +465,6 @@
       const id = p_item_id.value;
       const originalVal = p_original.value === "" ? null : Number(p_original.value);
       const currentVal = Number(p_current.value);
-
       if (!id || !Number.isFinite(currentVal)) return;
 
       setStatus("Saving prices…");
@@ -486,22 +483,15 @@
       const orig = (item.original_price !== null && Number.isFinite(item.original_price) && item.original_price > 0)
         ? moneyGBP(item.original_price)
         : "";
-
       if (!orig || orig === now) {
-        return `<span class="newPrice" style="${big ? 'font-size:20px;' : ''}">${now}</span>`;
+        return `<span class="newPrice" style="${big ? 'font-size:22px;' : ''}">${now}</span>`;
       }
-
-      return `
-        <span class="oldPrice">${orig}</span>
-        <span class="newPrice" style="${big ? 'font-size:20px;' : ''}">${now}</span>
-      `;
+      return `<span class="oldPrice">${orig}</span><span class="newPrice" style="${big ? 'font-size:22px;' : ''}">${now}</span>`;
     }
 
     function render(){
       const query = q.value.trim();
-      const list = ITEMS
-        .filter(it => match(it, query))
-        .filter(it => passesFilter(it));
+      const list = ITEMS.filter(it => match(it, query)).filter(it => passesFilter(it));
 
       grid.innerHTML = "";
       if (list.length === 0){
@@ -518,7 +508,7 @@
 
         const adminBtns = isAdmin ? `
           <div class="adminBtnRow">
-            ${item.sold ? `<button class="adminBtn adminAvail" type="button">Mark Available</button>` : ``}
+            <button class="adminBtn adminToggle" type="button">${item.sold ? "Mark Available" : "Mark Sold"}</button>
             <button class="adminBtn adminEdit" type="button">Edit Prices</button>
           </div>
         ` : "";
@@ -540,36 +530,26 @@
         `;
 
         const thumb = card.querySelector(".thumb");
-
         if (isInteractive){
           thumb.addEventListener("click", () => openModal(item));
-          thumb.addEventListener("keydown", (e) => {
-            if (e.key === "Enter" || e.key === " ") openModal(item);
-          });
+          thumb.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") openModal(item); });
         }
 
         if (isAdmin){
-          const availBtn = card.querySelector(".adminAvail");
-          if (availBtn){
-            availBtn.addEventListener("click", async (e) => {
-              e.preventDefault(); e.stopPropagation();
-              await markAvailable(item);
-            });
-          }
-          const editBtn = card.querySelector(".adminEdit");
-          if (editBtn){
-            editBtn.addEventListener("click", (e) => {
-              e.preventDefault(); e.stopPropagation();
-              openPriceModal(item);
-            });
-          }
+          card.querySelector(".adminToggle")?.addEventListener("click", async (e) => {
+            e.preventDefault(); e.stopPropagation();
+            await setSold(item, !item.sold);
+          });
+          card.querySelector(".adminEdit")?.addEventListener("click", (e) => {
+            e.preventDefault(); e.stopPropagation();
+            openPriceModal(item);
+          });
         }
 
         grid.appendChild(card);
       }
     }
 
-    // Item modal carousel
     const modal = document.getElementById("modal");
     const closeBtn = document.getElementById("closeBtn");
     const modalTitle = document.getElementById("modalTitle");
@@ -580,8 +560,14 @@
     const asideTitle = document.getElementById("asideTitle");
     const asidePrice = document.getElementById("asidePrice");
     const asideDesc = document.getElementById("asideDesc");
+    const itemSection = document.getElementById("itemSection");
     const asideDims = document.getElementById("asideDims");
     const asideLink = document.getElementById("asideLink");
+
+    const contactForm = document.getElementById("contact");
+    const sendBtn = document.getElementById("sendBtn");
+    const formSuccess = document.getElementById("formSuccess");
+    const formError = document.getElementById("formError");
 
     const f_item_id = document.getElementById("f_item_id");
     const f_item_name = document.getElementById("f_item_name");
@@ -597,11 +583,13 @@
 
       modalTitle.textContent = item.title;
       asideTitle.textContent = item.title;
-
       asidePrice.innerHTML = `<div class="priceBlock">${priceHtml(item,true)}</div>`;
       asideDesc.textContent = item.description;
 
-      if (item.dimensions){
+      const showDims = !!item.dimensions;
+      const showLink = !!item.item_link;
+
+      if (showDims){
         asideDims.style.display = "block";
         asideDims.innerHTML = `<b>Dimensions:</b> ${escapeHtml(item.dimensions)}`;
       } else {
@@ -609,7 +597,7 @@
         asideDims.innerHTML = "";
       }
 
-      if (item.item_link){
+      if (showLink){
         asideLink.style.display = "block";
         const safeUrl = String(item.item_link);
         asideLink.innerHTML = `<b>Item link:</b> <a href="${safeUrl}" target="_blank" rel="noopener noreferrer">Open original listing</a>`;
@@ -617,6 +605,12 @@
         asideLink.style.display = "none";
         asideLink.innerHTML = "";
       }
+
+      itemSection.style.display = (showDims || showLink) ? "block" : "none";
+
+      formSuccess.style.display = "none";
+      formError.style.display = "none";
+      sendBtn.disabled = false;
 
       f_item_id.value = item.id;
       f_item_name.value = item.title;
@@ -674,12 +668,43 @@
 
     closeBtn.addEventListener("click", closeModal);
     modal.addEventListener("click", (e) => { if (e.target === modal) closeModal(); });
+
     window.addEventListener("keydown", (e) => {
       if (!modal.classList.contains("open") && !priceModal.classList.contains("open")) return;
       if (e.key === "Escape") { if (priceModal.classList.contains("open")) closePriceModal(); else closeModal(); }
       if (!modal.classList.contains("open")) return;
       if (e.key === "ArrowLeft" && activeItem) setHero(activeItem, activeIndex - 1);
       if (e.key === "ArrowRight" && activeItem) setHero(activeItem, activeIndex + 1);
+    });
+
+    function encodeFormData(form) {
+      const data = new FormData(form);
+      const p = new URLSearchParams();
+      for (const [k, v] of data.entries()) p.append(k, v);
+      return p.toString();
+    }
+
+    contactForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      formSuccess.style.display = "none";
+      formError.style.display = "none";
+      sendBtn.disabled = true;
+
+      try {
+        const body = encodeFormData(contactForm);
+        const res = await fetch("/", {
+          method: "POST",
+          headers: { "Content-Type": "application/x-www-form-urlencoded" },
+          body
+        });
+        if (!res.ok) throw new Error("Bad response");
+
+        formSuccess.style.display = "block";
+        sendBtn.disabled = false;
+      } catch (err) {
+        formError.style.display = "block";
+        sendBtn.disabled = false;
+      }
     });
 
     q.addEventListener("input", render);
