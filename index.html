@@ -1,0 +1,479 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Moving Sale</title>
+  <style>
+    :root{
+      --bg:#0b0d12; --card:#111525; --muted:#9aa4b2; --text:#e7edf5; --accent:#6ea8fe;
+      --border:rgba(255,255,255,.08);
+    }
+    *{box-sizing:border-box}
+    body{margin:0;background:linear-gradient(180deg,#0b0d12,#070810);color:var(--text);font:15px/1.4 system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial}
+    a{color:inherit}
+    header{padding:28px 18px 10px;max-width:1100px;margin:0 auto}
+    h1{margin:0 0 8px;font-size:26px}
+    .sub{margin:0;color:var(--muted)}
+
+    .toolbar{max-width:1100px;margin:0 auto;padding:14px 18px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+    .pill{display:flex;gap:10px;align-items:center;background:rgba(255,255,255,.04);border:1px solid var(--border);padding:10px 12px;border-radius:14px}
+    input,textarea,button,select{font:inherit}
+    input[type="search"],select{background:transparent;border:0;outline:none;color:var(--text)}
+    select{appearance:none}
+    .spacer{flex:1}
+    .adminBadge{display:none;padding:6px 10px;border-radius:999px;border:1px dashed var(--border);color:var(--muted)}
+    .status{display:none;color:var(--muted);font-size:12px}
+
+    main{max-width:1100px;margin:0 auto;padding:0 18px 40px}
+    .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+    @media (max-width:980px){.grid{grid-template-columns:repeat(2,1fr)}}
+    @media (max-width:640px){.grid{grid-template-columns:1fr}}
+
+    .card{position:relative;background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:18px;overflow:hidden;box-shadow:0 10px 30px rgba(0,0,0,.25)}
+    .thumb{aspect-ratio: 4/3; background:#0a0c12;display:block;cursor:pointer;overflow:hidden}
+    .thumb img{width:100%;height:100%;object-fit:cover;display:block;transform:scale(1.01)}
+    .content{padding:12px 12px 14px}
+    .titleRow{display:flex;gap:10px;align-items:flex-start}
+    .title{margin:0;font-size:16px;line-height:1.25}
+    .price{margin-left:auto;font-weight:700;color:#d7f5df}
+    .desc{margin:8px 0 0;color:var(--muted);font-size:13px}
+    .meta{margin-top:10px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+    .tag{font-size:12px;color:var(--muted);border:1px solid var(--border);padding:4px 8px;border-radius:999px}
+
+    .soldOverlay{display:none;position:absolute;inset:0;background:rgba(11,13,18,.72);backdrop-filter: blur(2px);}
+    .soldStamp{position:absolute;top:12px;left:12px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);padding:8px 10px;border-radius:12px;font-weight:800;letter-spacing:.08em}
+    .sold .soldOverlay{display:block}
+    .sold .thumb img{filter:grayscale(1) contrast(.9) brightness(.85)}
+    .sold .price{color:#ffc2c2}
+
+    .adminControls{display:none;margin-top:10px}
+    .btn{background:rgba(255,255,255,.06);border:1px solid var(--border);color:var(--text);padding:8px 10px;border-radius:12px;cursor:pointer}
+    .btn:hover{border-color:rgba(255,255,255,.18)}
+
+    /* Modal */
+    .modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.62);align-items:center;justify-content:center;padding:18px;z-index:50}
+    .modal.open{display:flex}
+    .dialog{max-width:980px;width:100%;background:rgba(17,21,37,.96);border:1px solid var(--border);border-radius:20px;overflow:hidden;box-shadow:0 18px 70px rgba(0,0,0,.55)}
+    .dialogTop{display:flex;gap:10px;align-items:center;padding:12px 12px;border-bottom:1px solid var(--border)}
+    .dialogTop b{font-size:14px}
+    .close{margin-left:auto}
+
+    .dialogBody{display:grid;grid-template-columns: 2fr 1fr;gap:0}
+    @media (max-width:860px){.dialogBody{grid-template-columns:1fr}}
+    .viewer{padding:12px}
+    .hero{position:relative;aspect-ratio: 16/10;background:#070810;border-radius:14px;overflow:hidden;border:1px solid var(--border)}
+    .hero img{width:100%;height:100%;object-fit:contain;background:#05060a}
+    .navBtn{position:absolute;top:50%;transform:translateY(-50%);background:rgba(0,0,0,.35);border:1px solid rgba(255,255,255,.16);padding:8px 10px;border-radius:12px;cursor:pointer}
+    .navBtn:hover{background:rgba(0,0,0,.5)}
+    .prev{left:10px} .next{right:10px}
+
+    .thumbs{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+    .thumbs button{padding:0;border:1px solid var(--border);border-radius:10px;overflow:hidden;background:transparent;cursor:pointer;width:72px;height:54px}
+    .thumbs img{width:100%;height:100%;object-fit:cover;display:block}
+    .thumbs .active{border-color:rgba(110,168,254,.7)}
+
+    aside{padding:12px;border-left:1px solid var(--border)}
+    @media (max-width:860px){aside{border-left:0;border-top:1px solid var(--border)}}
+    .asideTitle{margin:0 0 6px;font-size:18px}
+    .asidePrice{font-weight:800;font-size:18px;margin:0 0 10px}
+    .asideDesc{color:var(--muted);margin:0 0 14px}
+
+    form{display:grid;gap:10px}
+    textarea{min-height:90px;resize:vertical}
+    .field{display:grid;gap:6px}
+    label{font-size:12px;color:var(--muted)}
+    input[type="text"],input[type="email"],textarea{
+      background:rgba(255,255,255,.04);
+      border:1px solid var(--border);
+      border-radius:12px;
+      padding:10px 10px;
+      color:var(--text);
+      outline:none;
+    }
+    input:focus,textarea:focus{border-color:rgba(110,168,254,.55)}
+
+    .foot{max-width:1100px;margin:0 auto;padding:18px;color:var(--muted);font-size:12px}
+    .hint{color:var(--muted);font-size:12px;margin:0}
+    code{color:#cfe2ff}
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Moving Sale</h1>
+    <p class="sub">Browse items, open photos, and send a message to buy.</p>
+  </header>
+
+  <div class="toolbar">
+    <div class="pill">
+      🔎 <input id="q" type="search" placeholder="Search items…" autocomplete="off" />
+    </div>
+    <div class="pill">
+      Filter:
+      <select id="filter">
+        <option value="all">All</option>
+        <option value="available">Available only</option>
+        <option value="sold">Sold only</option>
+      </select>
+    </div>
+
+    <div class="pill status" id="status"></div>
+
+    <div class="spacer"></div>
+    <div id="adminBadge" class="adminBadge">Admin mode</div>
+  </div>
+
+  <main>
+    <div id="grid" class="grid"></div>
+  </main>
+
+  <div class="foot">
+    <p class="hint">
+      Admin: add <code>?admin=1</code> to the URL to show “Mark sold / Available” buttons.
+      (Sold sync requires Netlify Functions; until then the page uses demo data.)
+    </p>
+  </div>
+
+  <!-- Modal -->
+  <div id="modal" class="modal" aria-hidden="true">
+    <div class="dialog" role="dialog" aria-modal="true">
+      <div class="dialogTop">
+        <b id="modalTitle">Item</b>
+        <button id="closeBtn" class="btn close">Close</button>
+      </div>
+      <div class="dialogBody">
+        <div class="viewer">
+          <div class="hero">
+            <img id="heroImg" alt="" />
+            <button id="prevBtn" class="navBtn prev">◀</button>
+            <button id="nextBtn" class="navBtn next">▶</button>
+          </div>
+          <div id="thumbs" class="thumbs"></div>
+        </div>
+        <aside>
+          <h2 id="asideTitle" class="asideTitle"></h2>
+          <p id="asidePrice" class="asidePrice"></p>
+          <p id="asideDesc" class="asideDesc"></p>
+
+          <!-- Contact form: replace action with your provider OR switch to Netlify Forms later -->
+          <form id="contact" method="POST" action="https://formspree.io/f/YOUR_FORM_ID">
+            <input type="hidden" name="item_id" id="f_item_id" />
+            <input type="hidden" name="item_name" id="f_item_name" />
+            <div class="field">
+              <label for="f_name">Your name</label>
+              <input id="f_name" name="name" type="text" required />
+            </div>
+            <div class="field">
+              <label for="f_email">Your email</label>
+              <input id="f_email" name="email" type="email" required />
+            </div>
+            <div class="field">
+              <label for="f_msg">Message</label>
+              <textarea id="f_msg" name="message" required></textarea>
+            </div>
+            <button class="btn" type="submit">Send message</button>
+            <p class="hint">Tip: include your preferred pickup time.</p>
+          </form>
+        </aside>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /**
+     * Incremental plan:
+     * - TODAY: page renders using DEMO_ITEMS (so you can commit and see something).
+     * - NEXT: you’ll add Netlify functions:
+     *    GET  /.netlify/functions/items        -> returns DB items
+     *    POST /.netlify/functions/toggle-sold  -> admin updates sold
+     *   Once those exist, this page will auto-switch to DB mode.
+     */
+
+    // If you already inserted real rows in DB, these are only a fallback.
+    const DEMO_ITEMS = [
+      {
+        id: "desk-ikea-01",
+        title: "IKEA desk",
+        price_gbp: 45,
+        description: "Good condition. Pickup in London.",
+        tags: ["Furniture"],
+        images: ["images/desk1.jpg", "images/desk2.jpg"],
+        sold: false,
+        sort_order: 10
+      },
+      {
+        id: "monitor-27-01",
+        title: "27\" monitor",
+        price_gbp: 120,
+        description: "Includes power cable.",
+        tags: ["Electronics"],
+        images: ["images/monitor1.jpg"],
+        sold: false,
+        sort_order: 20
+      }
+    ];
+
+    // Source of truth list for rendering:
+    let ITEMS = [];
+
+    // --- Admin mode (simple UI flag) ---
+    const params = new URLSearchParams(location.search);
+    const isAdmin = params.get("admin") === "1";
+
+    // --- UI elements ---
+    const grid = document.getElementById("grid");
+    const q = document.getElementById("q");
+    const filter = document.getElementById("filter");
+    const adminBadge = document.getElementById("adminBadge");
+    const statusEl = document.getElementById("status");
+    if (isAdmin) adminBadge.style.display = "inline-block";
+
+    function setStatus(msg) {
+      if (!msg) {
+        statusEl.style.display = "none";
+        statusEl.textContent = "";
+        return;
+      }
+      statusEl.style.display = "flex";
+      statusEl.textContent = msg;
+    }
+
+    function moneyGBP(n){
+      try { return new Intl.NumberFormat("en-GB", { style:"currency", currency:"GBP" }).format(n); }
+      catch { return `£${Number(n).toFixed(0)}`; }
+    }
+
+    function match(item, query){
+      if (!query) return true;
+      const hay = [item.title, item.description, ...(item.tags||[])].join(" ").toLowerCase();
+      return hay.includes(query.toLowerCase());
+    }
+
+    function passesFilter(item){
+      const sold = !!item.sold;
+      if (filter.value === "available") return !sold;
+      if (filter.value === "sold") return sold;
+      return true;
+    }
+
+    function render(){
+      const query = q.value.trim();
+      const list = ITEMS
+        .filter(it => match(it, query))
+        .filter(it => passesFilter(it));
+
+      grid.innerHTML = "";
+      if (list.length === 0){
+        grid.innerHTML = `<div style="grid-column:1/-1;color:var(--muted);padding:14px">No items match.</div>`;
+        return;
+      }
+
+      for (const item of list){
+        const card = document.createElement("div");
+        card.className = "card" + (item.sold ? " sold" : "");
+
+        const img0 = item.images?.[0] || "";
+        card.innerHTML = `
+          <div class="thumb" role="button" tabindex="0" aria-label="Open photos">
+            ${img0 ? `<img src="${img0}" alt="${escapeHtml(item.title)}" loading="lazy" />` : `<div style="padding:18px;color:var(--muted)">No image</div>`}
+          </div>
+          <div class="content">
+            <div class="titleRow">
+              <h3 class="title">${escapeHtml(item.title)}</h3>
+              <div class="price">${moneyGBP(item.price_gbp)}</div>
+            </div>
+            <p class="desc">${escapeHtml(item.description)}</p>
+            <div class="meta">
+              ${(item.tags||[]).map(t => `<span class="tag">${escapeHtml(t)}</span>`).join("")}
+            </div>
+            <div class="adminControls">
+              <button class="btn toggleSold">${item.sold ? "Mark Available" : "Mark Sold"}</button>
+            </div>
+          </div>
+          <div class="soldOverlay" aria-hidden="true"></div>
+          <div class="soldStamp" aria-hidden="true">SOLD</div>
+        `;
+
+        const thumb = card.querySelector(".thumb");
+        thumb.addEventListener("click", () => openModal(item));
+        thumb.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") openModal(item); });
+
+        if (isAdmin){
+          const box = card.querySelector(".adminControls");
+          box.style.display = "block";
+          card.querySelector(".toggleSold").addEventListener("click", async (e) => {
+            e.stopPropagation();
+            await toggleSold(item);
+          });
+        }
+
+        grid.appendChild(card);
+      }
+    }
+
+    // --- Data loading (auto-switch to DB when functions exist) ---
+    async function refreshItems() {
+      setStatus("Loading…");
+      try {
+        const res = await fetch("/.netlify/functions/items", { cache: "no-store" });
+        if (!res.ok) throw new Error(`items function HTTP ${res.status}`);
+        const rows = await res.json();
+
+        // Normalize to expected shape
+        ITEMS = (Array.isArray(rows) ? rows : []).map(r => ({
+          id: r.id,
+          title: r.title,
+          description: r.description ?? "",
+          price_gbp: Number(r.price_gbp ?? 0),
+          images: Array.isArray(r.images) ? r.images : [],
+          tags: Array.isArray(r.tags) ? r.tags : [], // optional future field
+          sold: !!r.sold,
+          sort_order: Number(r.sort_order ?? 0)
+        })).sort((a,b) => (a.sort_order - b.sort_order));
+
+        setStatus("");
+        render();
+      } catch (err) {
+        // Fallback to demo items so the page is usable before functions exist
+        ITEMS = DEMO_ITEMS.slice().sort((a,b) => (a.sort_order - b.sort_order));
+        setStatus("Using demo data (functions not added yet).");
+        render();
+      }
+    }
+
+    async function toggleSold(item) {
+      // Until toggle function exists, don’t try to do local-only state (would desync).
+      // When you add the function, this will work.
+      const nextSold = !item.sold;
+
+      let adminSecret = "";
+      if (location.protocol === "https:" || location.hostname === "localhost") {
+        adminSecret = prompt("Admin secret:");
+      }
+      if (!adminSecret) return;
+
+      setStatus("Updating…");
+      try {
+        const res = await fetch("/.netlify/functions/toggle-sold", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "x-admin-secret": adminSecret
+          },
+          body: JSON.stringify({ id: item.id, sold: nextSold })
+        });
+        if (!res.ok) throw new Error(`toggle-sold HTTP ${res.status}`);
+        await refreshItems();
+      } catch (err) {
+        setStatus("Update failed (toggle-sold function not added yet).");
+        // Leave UI as-is.
+      }
+    }
+
+    // --- Modal carousel ---
+    const modal = document.getElementById("modal");
+    const closeBtn = document.getElementById("closeBtn");
+    const modalTitle = document.getElementById("modalTitle");
+    const heroImg = document.getElementById("heroImg");
+    const thumbs = document.getElementById("thumbs");
+    const prevBtn = document.getElementById("prevBtn");
+    const nextBtn = document.getElementById("nextBtn");
+    const asideTitle = document.getElementById("asideTitle");
+    const asidePrice = document.getElementById("asidePrice");
+    const asideDesc = document.getElementById("asideDesc");
+
+    const f_item_id = document.getElementById("f_item_id");
+    const f_item_name = document.getElementById("f_item_name");
+    const f_msg = document.getElementById("f_msg");
+
+    let activeItem = null;
+    let activeIndex = 0;
+
+    function openModal(item){
+      activeItem = item;
+      activeIndex = 0;
+
+      modalTitle.textContent = item.title;
+      asideTitle.textContent = item.title;
+      asidePrice.textContent = moneyGBP(item.price_gbp) + (item.sold ? " (SOLD)" : "");
+      asideDesc.textContent = item.description;
+
+      f_item_id.value = item.id;
+      f_item_name.value = item.title;
+      f_msg.value = `Hi — I'm interested in: ${item.title} (${moneyGBP(item.price_gbp)}). Is it still available?`;
+
+      buildThumbs(item);
+      setHero(item, 0);
+
+      modal.classList.add("open");
+      modal.setAttribute("aria-hidden", "false");
+      document.body.style.overflow = "hidden";
+    }
+
+    function closeModal(){
+      modal.classList.remove("open");
+      modal.setAttribute("aria-hidden", "true");
+      document.body.style.overflow = "";
+      activeItem = null;
+    }
+
+    function setHero(item, idx){
+      const imgs = item.images || [];
+      if (!imgs.length){
+        heroImg.removeAttribute("src");
+        heroImg.alt = "";
+        prevBtn.style.display = "none";
+        nextBtn.style.display = "none";
+        return;
+      }
+      activeIndex = (idx + imgs.length) % imgs.length;
+      heroImg.src = imgs[activeIndex];
+      heroImg.alt = item.title;
+
+      prevBtn.style.display = imgs.length > 1 ? "block" : "none";
+      nextBtn.style.display = imgs.length > 1 ? "block" : "none";
+
+      [...thumbs.querySelectorAll("button")].forEach((b, i) => b.classList.toggle("active", i === activeIndex));
+    }
+
+    function buildThumbs(item){
+      thumbs.innerHTML = "";
+      const imgs = item.images || [];
+      for (let i=0;i<imgs.length;i++){
+        const b = document.createElement("button");
+        b.type = "button";
+        b.innerHTML = `<img src="${imgs[i]}" alt="" loading="lazy" />`;
+        b.addEventListener("click", () => setHero(item, i));
+        thumbs.appendChild(b);
+      }
+    }
+
+    prevBtn.addEventListener("click", () => { if (activeItem) setHero(activeItem, activeIndex - 1); });
+    nextBtn.addEventListener("click", () => { if (activeItem) setHero(activeItem, activeIndex + 1); });
+
+    closeBtn.addEventListener("click", closeModal);
+    modal.addEventListener("click", (e) => { if (e.target === modal) closeModal(); });
+    window.addEventListener("keydown", (e) => {
+      if (!modal.classList.contains("open")) return;
+      if (e.key === "Escape") closeModal();
+      if (e.key === "ArrowLeft" && activeItem) setHero(activeItem, activeIndex - 1);
+      if (e.key === "ArrowRight" && activeItem) setHero(activeItem, activeIndex + 1);
+    });
+
+    function escapeHtml(str){
+      return String(str ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    q.addEventListener("input", render);
+    filter.addEventListener("change", render);
+
+    // Start: try DB functions first; fallback to demo.
+    refreshItems();
+  </script>
+</body>
+</html>
