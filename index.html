@@ -6,12 +6,11 @@
   <title>Moving Sale</title>
   <style>
     :root{
-      --bg:#0b0d12; --card:#111525; --muted:#9aa4b2; --text:#e7edf5; --accent:#6ea8fe;
+      --bg:#0b0d12; --muted:#9aa4b2; --text:#e7edf5; --accent:#6ea8fe;
       --border:rgba(255,255,255,.08);
     }
     *{box-sizing:border-box}
     body{margin:0;background:linear-gradient(180deg,#0b0d12,#070810);color:var(--text);font:15px/1.4 system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial}
-    a{color:inherit}
     header{padding:28px 18px 10px;max-width:1100px;margin:0 auto}
     h1{margin:0 0 8px;font-size:26px}
     .sub{margin:0;color:var(--muted)}
@@ -31,41 +30,65 @@
     @media (max-width:640px){.grid{grid-template-columns:1fr}}
 
     .card{position:relative;background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:18px;overflow:hidden;box-shadow:0 10px 30px rgba(0,0,0,.25)}
-    .thumb{aspect-ratio: 4/3; background:#0a0c12;display:block;cursor:pointer;overflow:hidden; position:relative}
+    .thumb{position:relative;aspect-ratio: 4/3; background:#0a0c12;display:block;overflow:hidden}
+    .thumb.clickable{cursor:pointer}
     .thumb img{width:100%;height:100%;object-fit:cover;display:block;transform:scale(1.01)}
     .content{padding:12px 12px 14px}
     .titleRow{display:flex;gap:10px;align-items:flex-start}
     .title{margin:0;font-size:16px;line-height:1.25}
     .price{margin-left:auto;font-weight:700;color:#d7f5df}
     .desc{margin:8px 0 0;color:var(--muted);font-size:13px}
-    .meta{margin-top:10px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-    .tag{font-size:12px;color:var(--muted);border:1px solid var(--border);padding:4px 8px;border-radius:999px}
 
-    .adminImageBtn{
+    /* SOLD visuals */
+    .soldOverlay{
+      display:none;
+      position:absolute;
+      inset:0;
+      background:rgba(11,13,18,.72);
+      backdrop-filter: blur(2px);
+      z-index:2;
+      pointer-events:none; /* don't block admin button */
+    }
+    .soldStamp{
+      display:none; /* hidden unless sold */
+      position:absolute;
+      top:12px;
+      left:12px;
+      background:rgba(255,255,255,.08);
+      border:1px solid rgba(255,255,255,.18);
+      padding:8px 10px;
+      border-radius:12px;
+      font-weight:800;
+      letter-spacing:.08em;
+      z-index:3;
+      pointer-events:none;
+    }
+    .sold .soldOverlay{display:block}
+    .sold .soldStamp{display:block}
+    .sold .thumb img{filter:grayscale(1) contrast(.9) brightness(.85)}
+    .sold .price{color:rgba(231,237,245,.55)}
+    .sold .title{color:rgba(231,237,245,.75)}
+    .sold .desc{color:rgba(154,164,178,.75)}
+
+    /* Admin-only: "Mark Available" button shown ONLY when sold */
+    .adminAvailBtn{
       position:absolute;
       bottom:10px;
       right:10px;
-      background:rgba(0,0,0,.65);
-      border:1px solid rgba(255,255,255,.3);
-      color:white;
-      padding:6px 10px;
+      background:rgba(0,0,0,.70);
+      border:1px solid rgba(255,255,255,.28);
+      color:var(--text);
+      padding:7px 10px;
       border-radius:10px;
       font-size:12px;
       cursor:pointer;
-      z-index:5;
+      z-index:4;
+      display:none;
     }
+    .adminAvailBtn:hover{background:rgba(0,0,0,.85); border-color:rgba(255,255,255,.45)}
+    .adminAvailBtn:active{transform:translateY(1px)}
+    .adminAvailBtn:focus{outline:2px solid rgba(110,168,254,.55); outline-offset:2px}
 
-    .adminImageBtn:hover{
-      background:rgba(0,0,0,.85);
-    }
-
-    .soldOverlay{display:none;position:absolute;inset:0;background:rgba(11,13,18,.72);backdrop-filter: blur(2px);pointer-events: none;}
-    .soldStamp{position:absolute;top:12px;left:12px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);padding:8px 10px;border-radius:12px;font-weight:800;letter-spacing:.08em;pointer-events: none}
-    .sold .soldOverlay{display:block}
-    .sold .thumb img{filter:grayscale(1) contrast(.9) brightness(.85)}
-    .sold .price{color:#ffc2c2}
-
-    .adminControls{display:none;margin-top:10px}
     .btn{background:rgba(255,255,255,.06);border:1px solid var(--border);color:var(--text);padding:8px 10px;border-radius:12px;cursor:pointer}
     .btn:hover{border-color:rgba(255,255,255,.18)}
 
@@ -147,8 +170,7 @@
 
   <div class="foot">
     <p class="hint">
-      Admin: add <code>?admin=1</code> to the URL to show “Mark sold / Available” buttons.
-      (Sold sync requires Netlify Functions; until then the page uses demo data.)
+      Admin: add <code>?admin=1</code> to show the <em>Mark Available</em> button on SOLD items.
     </p>
   </div>
 
@@ -173,7 +195,7 @@
           <p id="asidePrice" class="asidePrice"></p>
           <p id="asideDesc" class="asideDesc"></p>
 
-          <!-- Contact form: replace action with your provider OR switch to Netlify Forms later -->
+          <!-- Contact form: keep Formspree OR swap to Netlify Forms later -->
           <form id="contact" method="POST" action="https://formspree.io/f/YOUR_FORM_ID">
             <input type="hidden" name="item_id" id="f_item_id" />
             <input type="hidden" name="item_name" id="f_item_name" />
@@ -198,61 +220,15 @@
   </div>
 
   <script>
-    /**
-     * Incremental plan:
-     * - TODAY: page renders using DEMO_ITEMS (so you can commit and see something).
-     * - NEXT: you’ll add Netlify functions:
-     *    GET  /.netlify/functions/items        -> returns DB items
-     *    POST /.netlify/functions/toggle-sold  -> admin updates sold
-     *   Once those exist, this page will auto-switch to DB mode.
-     */
-
-    // If you already inserted real rows in DB, these are only a fallback.
-    const DEMO_ITEMS = [
-      {
-        id: "desk-ikea-01",
-        title: "IKEA desk",
-        price_gbp: 45,
-        description: "Good condition. Pickup in London.",
-        tags: ["Furniture"],
-        images: ["images/desk1.jpg", "images/desk2.jpg"],
-        sold: false,
-        sort_order: 10
-      },
-      {
-        id: "monitor-27-01",
-        title: "27\" monitor",
-        price_gbp: 120,
-        description: "Includes power cable.",
-        tags: ["Electronics"],
-        images: ["images/monitor1.jpg"],
-        sold: false,
-        sort_order: 20
-      }
-    ];
-
-    // Source of truth list for rendering:
-    let ITEMS = [];
-
-    // --- Admin mode (simple UI flag) ---
     const params = new URLSearchParams(location.search);
     const isAdmin = params.get("admin") === "1";
 
-    // --- UI elements ---
     const grid = document.getElementById("grid");
     const q = document.getElementById("q");
     const filter = document.getElementById("filter");
     const adminBadge = document.getElementById("adminBadge");
     const statusEl = document.getElementById("status");
-    if (isAdmin){
-      const btn = card.querySelector(".adminImageBtn");
-      if (btn) {
-        btn.addEventListener("click", async (e) => {
-          e.stopPropagation(); // prevents opening modal
-          await toggleSold(item);
-        });
-      }
-    }
+    if (isAdmin) adminBadge.style.display = "inline-block";
 
     function setStatus(msg) {
       if (!msg) {
@@ -269,6 +245,15 @@
       catch { return `£${Number(n).toFixed(0)}`; }
     }
 
+    function escapeHtml(str){
+      return String(str ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
     function match(item, query){
       if (!query) return true;
       const hay = [item.title, item.description, ...(item.tags||[])].join(" ").toLowerCase();
@@ -280,6 +265,69 @@
       if (filter.value === "available") return !sold;
       if (filter.value === "sold") return sold;
       return true;
+    }
+
+    const DEMO_ITEMS = [
+      {
+        id: "demo-1",
+        title: "Demo item (items function unavailable)",
+        price_gbp: 1,
+        description: "If you see this, /.netlify/functions/items failed.",
+        tags: [],
+        images: [],
+        sold: false,
+        sort_order: 10
+      }
+    ];
+
+    let ITEMS = [];
+
+    async function refreshItems() {
+      setStatus("Loading…");
+      try {
+        const res = await fetch("/.netlify/functions/items", { cache: "no-store" });
+        if (!res.ok) throw new Error(`items function HTTP ${res.status}`);
+        const rows = await res.json();
+
+        ITEMS = (Array.isArray(rows) ? rows : []).map(r => ({
+          id: r.id,
+          title: r.title,
+          description: r.description ?? "",
+          price_gbp: Number(r.price_gbp ?? 0),
+          images: Array.isArray(r.images) ? r.images : [],
+          tags: Array.isArray(r.tags) ? r.tags : [],
+          sold: !!r.sold,
+          sort_order: Number(r.sort_order ?? 0)
+        })).sort((a,b) => (a.sort_order - b.sort_order));
+
+        setStatus("");
+        render();
+      } catch (err) {
+        ITEMS = DEMO_ITEMS;
+        setStatus("Data source error: using demo fallback.");
+        render();
+      }
+    }
+
+    async function markAvailable(item) {
+      const adminSecret = prompt("Admin secret:");
+      if (!adminSecret) return;
+
+      setStatus("Updating…");
+      try {
+        const res = await fetch("/.netlify/functions/toggle-sold", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "x-admin-secret": adminSecret
+          },
+          body: JSON.stringify({ id: item.id, sold: false })
+        });
+        if (!res.ok) throw new Error(`toggle-sold HTTP ${res.status}`);
+        await refreshItems();
+      } catch (err) {
+        setStatus("Update failed.");
+      }
     }
 
     function render(){
@@ -299,14 +347,16 @@
         card.className = "card" + (item.sold ? " sold" : "");
 
         const img0 = item.images?.[0] || "";
+        const isInteractive = isAdmin || !item.sold;
+
+        const adminBtnHtml = (isAdmin && item.sold)
+          ? `<button class="adminAvailBtn" type="button">Mark Available</button>`
+          : "";
+
         card.innerHTML = `
-          <div class="thumb" role="button" tabindex="0" aria-label="Open photos">
-              ${img0 ? `<img src="${img0}" alt="${escapeHtml(item.title)}" loading="lazy" />` : `<div style="padding:18px;color:var(--muted)">No image</div>`}
-              ${isAdmin && item.sold ? `
-                <button class="adminImageBtn">
-                  ${item.sold ? "Mark Available" : "Mark Sold"}
-                </button>
-              ` : ""}
+          <div class="thumb ${isInteractive ? "clickable" : ""}" role="${isInteractive ? "button" : "img"}" tabindex="${isInteractive ? "0" : "-1"}" aria-label="${isInteractive ? "Open photos" : "Sold item"}" aria-disabled="${isInteractive ? "false" : "true"}">
+            ${img0 ? `<img src="${img0}" alt="${escapeHtml(item.title)}" loading="lazy" />` : `<div style="padding:18px;color:var(--muted)">No image</div>`}
+            ${adminBtnHtml}
           </div>
           <div class="content">
             <div class="titleRow">
@@ -314,91 +364,37 @@
               <div class="price">${moneyGBP(item.price_gbp)}</div>
             </div>
             <p class="desc">${escapeHtml(item.description)}</p>
-            <div class="meta">
-              ${(item.tags||[]).map(t => `<span class="tag">${escapeHtml(t)}</span>`).join("")}
-            </div>
           </div>
           <div class="soldOverlay" aria-hidden="true"></div>
           <div class="soldStamp" aria-hidden="true">SOLD</div>
         `;
 
         const thumb = card.querySelector(".thumb");
-        thumb.addEventListener("click", () => openModal(item));
-        thumb.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") openModal(item); });
 
-        if (isAdmin){
-          const box = card.querySelector(".adminControls");
-          box.style.display = "block";
-          card.querySelector(".toggleSold").addEventListener("click", async (e) => {
-            e.stopPropagation();
-            await toggleSold(item);
+        if (isInteractive){
+          thumb.addEventListener("click", () => openModal(item));
+          thumb.addEventListener("keydown", (e) => {
+            if (e.key === "Enter" || e.key === " ") openModal(item);
           });
+        }
+
+        if (isAdmin && item.sold){
+          const btn = card.querySelector(".adminAvailBtn");
+          if (btn){
+            btn.style.display = "block";
+            btn.addEventListener("click", async (e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              await markAvailable(item);
+            });
+          }
         }
 
         grid.appendChild(card);
       }
     }
 
-    // --- Data loading (auto-switch to DB when functions exist) ---
-    async function refreshItems() {
-      setStatus("Loading…");
-      try {
-        const res = await fetch("/.netlify/functions/items", { cache: "no-store" });
-        if (!res.ok) throw new Error(`items function HTTP ${res.status}`);
-        const rows = await res.json();
-
-        // Normalize to expected shape
-        ITEMS = (Array.isArray(rows) ? rows : []).map(r => ({
-          id: r.id,
-          title: r.title,
-          description: r.description ?? "",
-          price_gbp: Number(r.price_gbp ?? 0),
-          images: Array.isArray(r.images) ? r.images : [],
-          tags: Array.isArray(r.tags) ? r.tags : [], // optional future field
-          sold: !!r.sold,
-          sort_order: Number(r.sort_order ?? 0)
-        })).sort((a,b) => (a.sort_order - b.sort_order));
-
-        setStatus("");
-        render();
-      } catch (err) {
-        // Fallback to demo items so the page is usable before functions exist
-        ITEMS = DEMO_ITEMS.slice().sort((a,b) => (a.sort_order - b.sort_order));
-        setStatus("Using demo data (functions not added yet).");
-        render();
-      }
-    }
-
-    async function toggleSold(item) {
-      // Until toggle function exists, don’t try to do local-only state (would desync).
-      // When you add the function, this will work.
-      const nextSold = !item.sold;
-
-      let adminSecret = "";
-      if (location.protocol === "https:" || location.hostname === "localhost") {
-        adminSecret = prompt("Admin secret:");
-      }
-      if (!adminSecret) return;
-
-      setStatus("Updating…");
-      try {
-        const res = await fetch("/.netlify/functions/toggle-sold", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "x-admin-secret": adminSecret
-          },
-          body: JSON.stringify({ id: item.id, sold: nextSold })
-        });
-        if (!res.ok) throw new Error(`toggle-sold HTTP ${res.status}`);
-        await refreshItems();
-      } catch (err) {
-        setStatus("Update failed (toggle-sold function not added yet).");
-        // Leave UI as-is.
-      }
-    }
-
-    // --- Modal carousel ---
+    // Modal carousel
     const modal = document.getElementById("modal");
     const closeBtn = document.getElementById("closeBtn");
     const modalTitle = document.getElementById("modalTitle");
@@ -488,19 +484,9 @@
       if (e.key === "ArrowRight" && activeItem) setHero(activeItem, activeIndex + 1);
     });
 
-    function escapeHtml(str){
-      return String(str ?? "")
-        .replaceAll("&", "&amp;")
-        .replaceAll("<", "&lt;")
-        .replaceAll(">", "&gt;")
-        .replaceAll('"', "&quot;")
-        .replaceAll("'", "&#039;");
-    }
-
     q.addEventListener("input", render);
     filter.addEventListener("change", render);
 
-    // Start: try DB functions first; fallback to demo.
     refreshItems();
   </script>
 </body>
