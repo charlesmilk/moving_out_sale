@@ -6,12 +6,13 @@
   <title>Moving Sale</title>
   <style>
     :root{
-      --bg:#0b0d12; --muted:#9aa4b2; --text:#e7edf5; --accent:#6ea8fe;
+      --muted:#9aa4b2; --text:#e7edf5; --accent:#6ea8fe;
       --border:rgba(255,255,255,.08);
     }
     *{box-sizing:border-box}
     html{background:#070810;overflow-x:hidden}
     body{margin:0;background:linear-gradient(180deg,#0b0d12,#070810);color:var(--text);font:15px/1.4 system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;overflow-x:hidden}
+
     header{padding:28px 18px 10px;max-width:1100px;margin:0 auto}
     h1{margin:0 0 8px;font-size:26px}
     .sub{margin:0;color:var(--muted)}
@@ -25,21 +26,10 @@
     .adminBadge{display:none;padding:6px 10px;border-radius:999px;border:1px dashed var(--border);color:var(--muted)}
     .status{display:none;color:var(--muted);font-size:12px}
 
-    main{max-width:1100px;margin:0 auto;padding:0 18px 18px;width:100%;}
-    .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;width:100%;}
-    @media (max-width:980px){.grid{grid-template-columns:repeat(2,1fr)}}
-    @media (max-width:640px){
-      .modal{padding:10px;align-items:center;justify-content:center}
-      .dialog{
-        width:100%;
-        max-width:100%;
-        margin:0 auto;
-      }
-      header, .toolbar, .mapWrap, .foot{
-        width:100%;
-        max-width:100%;
-      }
-    }}
+    main{max-width:1100px;margin:0 auto;padding:0 18px 18px}
+    .grid{display:grid;grid-template-columns:repeat(3, minmax(0,1fr));gap:14px;width:100%}
+    @media (max-width:980px){.grid{grid-template-columns:repeat(2, minmax(0,1fr))}}
+    @media (max-width:640px){.grid{grid-template-columns:1fr}}
 
     .card{position:relative;background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:18px;overflow:hidden;box-shadow:0 10px 30px rgba(0,0,0,.25)}
     .thumb{position:relative;aspect-ratio: 4/3; background:#0a0c12;display:block;overflow:hidden}
@@ -47,42 +37,16 @@
     .thumb img{width:100%;height:100%;object-fit:cover;display:block;transform:scale(1.01)}
     .content{padding:12px 12px 14px}
     .titleRow{display:flex;gap:10px;align-items:flex-start}
-    .title{margin:0;font-size:16px;line-height:1.25}
+    .title{margin:0;font-size:16px;line-height:1.25;min-width:0}
 
     .priceWrap{margin-left:auto;display:flex;gap:10px;align-items:baseline;flex-wrap:wrap;justify-content:flex-end}
-    .oldPrice{
-      color:rgba(231,237,245,.62);
-      text-decoration:line-through;
-      text-decoration-thickness:2px;
-      font-size:14px;
-      font-weight:700;
-    }
+    .oldPrice{color:rgba(231,237,245,.62);text-decoration:line-through;text-decoration-thickness:2px;font-size:14px;font-weight:700}
     .newPrice{font-weight:900;font-size:16px;color:#d7f5df}
     .desc{margin:8px 0 0;color:var(--muted);font-size:13px}
 
-    .soldOverlay{
-      display:none;
-      position:absolute;
-      inset:0;
-      background:rgba(11,13,18,.72);
-      backdrop-filter: blur(2px);
-      z-index:2;
-      pointer-events:none;
-    }
-    .soldStamp{
-      display:none;
-      position:absolute;
-      top:12px;
-      left:12px;
-      background:rgba(255,255,255,.08);
-      border:1px solid rgba(255,255,255,.18);
-      padding:8px 10px;
-      border-radius:12px;
-      font-weight:800;
-      letter-spacing:.08em;
-      z-index:3;
-      pointer-events:none;
-    }
+    /* SOLD visuals — scoped ONLY to cards */
+    .soldOverlay{display:none;position:absolute;inset:0;background:rgba(11,13,18,.72);backdrop-filter: blur(2px);z-index:2;pointer-events:none}
+    .soldStamp{display:none;position:absolute;top:12px;left:12px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);padding:8px 10px;border-radius:12px;font-weight:800;letter-spacing:.08em;z-index:3;pointer-events:none}
     .card.sold .soldOverlay{display:block}
     .card.sold .soldStamp{display:block}
     .card.sold .thumb img{filter:grayscale(1) contrast(.9) brightness(.85)}
@@ -90,30 +54,17 @@
     .card.sold .title{color:rgba(231,237,245,.75)}
     .card.sold .desc{color:rgba(154,164,178,.75)}
 
-    .adminBtnRow{
-      position:absolute;
-      bottom:10px;
-      right:10px;
-      display:flex;
-      gap:8px;
-      z-index:4;
-    }
-    .adminBtn{
-      background:rgba(0,0,0,.72);
-      border:1px solid rgba(255,255,255,.28);
-      color:var(--text);
-      padding:7px 10px;
-      border-radius:10px;
-      font-size:12px;
-      cursor:pointer;
-    }
-    .adminBtn:hover{background:rgba(0,0,0,.85); border-color:rgba(255,255,255,.45)}
+    /* Admin buttons */
+    .adminBtnRow{position:absolute;bottom:10px;right:10px;display:flex;gap:8px;z-index:4}
+    .adminBtn{background:rgba(0,0,0,.72);border:1px solid rgba(255,255,255,.28);color:var(--text);padding:7px 10px;border-radius:10px;font-size:12px;cursor:pointer}
+    .adminBtn:hover{background:rgba(0,0,0,.85);border-color:rgba(255,255,255,.45)}
     .adminBtn:active{transform:translateY(1px)}
-    .adminBtn:focus{outline:2px solid rgba(110,168,254,.55); outline-offset:2px}
+    .adminBtn:focus{outline:2px solid rgba(110,168,254,.55);outline-offset:2px}
 
     .btn{background:rgba(255,255,255,.06);border:1px solid var(--border);color:var(--text);padding:8px 10px;border-radius:12px;cursor:pointer}
     .btn:hover{border-color:rgba(255,255,255,.18)}
 
+    /* Modal */
     .modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.62);align-items:center;justify-content:center;padding:18px;z-index:50;overflow:auto;-webkit-overflow-scrolling:touch;overflow-x:hidden}
     .modal.open{display:flex}
     .dialog{max-width:980px;width:100%;background:rgba(17,21,37,.96);border:1px solid var(--border);border-radius:20px;overflow:hidden;box-shadow:0 18px 70px rgba(0,0,0,.55);max-height:calc(100dvh - 36px);display:flex;flex-direction:column;overflow-x:hidden}
@@ -124,6 +75,13 @@
     .dialogBody{display:grid;grid-template-columns: 2fr 1fr;gap:0;min-height:0;flex:1;overflow:hidden}
     .dialogBody > *{min-width:0}
     @media (max-width:860px){.dialogBody{grid-template-columns:1fr}}
+    @media (max-width:640px){
+      .modal{padding:10px;align-items:flex-start}
+      .dialog{max-height:calc(100dvh - 20px)}
+      .hero{aspect-ratio: 4/3}
+      .thumbs button{width:64px;height:48px}
+    }
+
     .viewer{padding:12px;min-height:0;min-width:0;overflow:auto;-webkit-overflow-scrolling:touch}
     .hero{position:relative;aspect-ratio: 16/10;background:#070810;border-radius:14px;overflow:hidden;border:1px solid var(--border)}
     .hero img{width:100%;height:100%;object-fit:contain;background:#05060a}
@@ -165,29 +123,31 @@
       padding:10px 10px;
       color:var(--text);
       outline:none;
+      width:100%;
     }
     input:focus,textarea:focus{border-color:rgba(110,168,254,.55)}
     .formNote{color:var(--muted);font-size:12px;margin:0}
     .successNote{display:none;color:rgba(215,245,223,.9);font-size:12px;margin:8px 0 0}
     .errorNote{display:none;color:rgba(255,194,194,.95);font-size:12px;margin:8px 0 0}
 
-    .foot{max-width:1100px;margin:0 auto;padding:18px;color:var(--muted);font-size:12px}
-    .hint{color:var(--muted);font-size:12px;margin:0}
-    code{color:#cfe2ff}
-
-    .miniModal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.62);align-items:center;justify-content:center;padding:18px;z-index:60}
+    /* Admin edit price modal */
+    .miniModal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.62);align-items:center;justify-content:center;padding:18px;z-index:60;overflow:auto}
     .miniModal.open{display:flex}
     .miniDialog{max-width:520px;width:100%;background:rgba(17,21,37,.98);border:1px solid var(--border);border-radius:18px;overflow:hidden;box-shadow:0 18px 70px rgba(0,0,0,.55)}
     .miniTop{display:flex;gap:10px;align-items:center;padding:12px;border-bottom:1px solid var(--border)}
     .miniBody{padding:12px}
     .miniActions{display:flex;gap:10px;justify-content:flex-end;margin-top:10px}
 
+    /* Map section */
     .mapWrap{max-width:1100px;margin:0 auto;padding:10px 18px 40px}
     .mapCard{border:1px solid var(--border);border-radius:18px;overflow:hidden;background:rgba(255,255,255,.03);box-shadow:0 10px 30px rgba(0,0,0,.25)}
     .mapHeader{padding:12px 12px;border-bottom:1px solid var(--border)}
     .mapHeader b{display:block;margin-bottom:4px}
     .mapHeader span{color:var(--muted);font-size:13px}
     .mapCard iframe{width:100%;height:340px;border:0;display:block}
+
+    .foot{max-width:1100px;margin:0 auto;padding:18px;color:var(--muted);font-size:12px}
+    code{color:#cfe2ff}
   </style>
 </head>
 <body>
@@ -226,17 +186,15 @@
         <span>The Gessner, 3 Watermead Way, London, N17 9RF</span>
       </div>
       <iframe loading="lazy" referrerpolicy="no-referrer-when-downgrade"
-        src="https://www.google.com/maps?q=The%20Gessner%2C%203%20Watermead%20Way%2C%20London%2C%20N17%209RF&output=embed">
-      </iframe>
+        src="https://www.google.com/maps?q=The%20Gessner%2C%203%20Watermead%20Way%2C%20London%2C%20N17%209RF&output=embed"></iframe>
     </div>
   </div>
 
   <div class="foot">
-    <p class="hint">
-      Admin: add <code>?admin=1</code>. You can mark items sold/available and edit prices. SOLD items are non-interactive for visitors.
-    </p>
+    <p>Admin: add <code>?admin=1</code>. You can mark items sold/available and edit prices.</p>
   </div>
 
+  <!-- Item Modal -->
   <div id="modal" class="modal" aria-hidden="true">
     <div class="dialog" role="dialog" aria-modal="true">
       <div class="dialogTop">
@@ -299,6 +257,7 @@
     </div>
   </div>
 
+  <!-- Admin: Edit Prices Modal -->
   <div id="priceModal" class="miniModal" aria-hidden="true">
     <div class="miniDialog" role="dialog" aria-modal="true">
       <div class="miniTop">
@@ -320,7 +279,7 @@
             <button class="btn" type="button" id="priceCancel">Cancel</button>
             <button class="btn" type="submit">Save</button>
           </div>
-          <p class="hint" style="margin-top:10px">
+          <p style="color:var(--muted);font-size:12px;margin:10px 0 0">
             Requires <code>/.netlify/functions/update-prices</code>.
           </p>
         </form>
@@ -339,35 +298,9 @@
     const statusEl = document.getElementById("status");
     if (isAdmin) adminBadge.style.display = "inline-block";
 
-    // iOS-safe scroll lock (prevents background page scroll while modal is open)
-    let __scrollY = 0;
-    function lockPageScroll() {
-      __scrollY = window.scrollY || 0;
-      document.body.style.position = "fixed";
-      document.body.style.top = `-${__scrollY}px`;
-      document.body.style.left = "0";
-      document.body.style.right = "0";
-      document.body.style.width = "100%";
-    }
-    function unlockPageScroll() {
-      const y = __scrollY || 0;
-      document.body.style.position = "";
-      document.body.style.top = "";
-      document.body.style.left = "";
-      document.body.style.right = "";
-      document.body.style.width = "";
-      window.scrollTo(0, y);
-    }
-
-
     function setStatus(msg) {
-      if (!msg) {
-        statusEl.style.display = "none";
-        statusEl.textContent = "";
-        return;
-      }
-      statusEl.style.display = "flex";
-      statusEl.textContent = msg;
+      if (!msg) { statusEl.style.display="none"; statusEl.textContent=""; return; }
+      statusEl.style.display="flex"; statusEl.textContent=msg;
     }
 
     function moneyGBP(n){
@@ -379,11 +312,14 @@
 
     function escapeHtml(str){
       return String(str ?? "")
-        .replaceAll("&", "&amp;")
-        .replaceAll("<", "&lt;")
-        .replaceAll(">", "&gt;")
-        .replaceAll('"', "&quot;")
-        .replaceAll("'", "&#039;");
+        .replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;").replaceAll("'", "&#039;");
+    }
+
+    function toBool(v){
+      if (v === true || v === 1 || v === "1" || v === "t" || v === "true") return true;
+      if (v === false || v === 0 || v === "0" || v === "f" || v === "false" || v === null || v === undefined) return false;
+      return Boolean(v);
     }
 
     function match(item, query){
@@ -391,7 +327,6 @@
       const hay = [item.title, item.description, item.dimensions, item.item_link].filter(Boolean).join(" ").toLowerCase();
       return hay.includes(query.toLowerCase());
     }
-
     function passesFilter(item){
       const sold = !!item.sold;
       if (filter.value === "available") return !sold;
@@ -400,16 +335,12 @@
     }
 
     const DEMO_ITEMS = [{
-      id: "demo-1",
-      title: "Demo item (items function unavailable)",
-      price_gbp: 45,
-      original_price: 100,
-      description: "If you see this, /.netlify/functions/items failed.",
-      dimensions: "120cm x 60cm x 75cm",
-      item_link: null,
-      images: [],
-      sold: false,
-      sort_order: 10
+      id:"demo-1",
+      title:"Demo item (items function unavailable)",
+      description:"If you see this, /.netlify/functions/items failed.",
+      price_gbp:45, original_price:100,
+      dimensions:null, item_link:null,
+      images:[], sold:false, sort_order:10
     }];
 
     let ITEMS = [];
@@ -430,7 +361,7 @@
           dimensions: (r.dimensions ?? null) || null,
           item_link: (r.item_link ?? null) || null,
           images: Array.isArray(r.images) ? r.images : [],
-          sold: !!r.sold,
+          sold: toBool(r.sold),
           sort_order: Number(r.sort_order ?? 0)
         })).sort((a,b) => (a.sort_order - b.sort_order));
 
@@ -449,10 +380,7 @@
 
       const res = await fetch(url, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "x-admin-secret": adminSecret
-        },
+        headers: { "Content-Type":"application/json", "x-admin-secret": adminSecret },
         body: JSON.stringify(payload)
       });
       if (!res.ok) return { ok:false, status: res.status };
@@ -466,6 +394,27 @@
       await refreshItems();
     }
 
+    // iOS-safe scroll lock
+    let __scrollY = 0;
+    function lockPageScroll() {
+      __scrollY = window.scrollY || 0;
+      document.body.style.position = "fixed";
+      document.body.style.top = `-${__scrollY}px`;
+      document.body.style.left = "0";
+      document.body.style.right = "0";
+      document.body.style.width = "100%";
+    }
+    function unlockPageScroll() {
+      const y = __scrollY || 0;
+      document.body.style.position = "";
+      document.body.style.top = "";
+      document.body.style.left = "";
+      document.body.style.right = "";
+      document.body.style.width = "";
+      window.scrollTo(0, y);
+    }
+
+    // Admin price edit modal
     const priceModal = document.getElementById("priceModal");
     const priceCloseBtn = document.getElementById("priceCloseBtn");
     const priceCancel = document.getElementById("priceCancel");
@@ -514,12 +463,8 @@
 
     function priceHtml(item, big=false) {
       const now = moneyGBP(item.price_gbp);
-      const orig = (item.original_price !== null && Number.isFinite(item.original_price) && item.original_price > 0)
-        ? moneyGBP(item.original_price)
-        : "";
-      if (!orig || orig === now) {
-        return `<span class="newPrice" style="${big ? 'font-size:22px;' : ''}">${now}</span>`;
-      }
+      const orig = (item.original_price !== null && Number.isFinite(item.original_price) && item.original_price > 0) ? moneyGBP(item.original_price) : "";
+      if (!orig || orig === now) return `<span class="newPrice" style="${big ? 'font-size:22px;' : ''}">${now}</span>`;
       return `<span class="oldPrice">${orig}</span><span class="newPrice" style="${big ? 'font-size:22px;' : ''}">${now}</span>`;
     }
 
@@ -584,6 +529,7 @@
       }
     }
 
+    // Item modal carousel
     const modal = document.getElementById("modal");
     const closeBtn = document.getElementById("closeBtn");
     const modalTitle = document.getElementById("modalTitle");
@@ -711,6 +657,7 @@
       if (e.key === "ArrowRight" && activeItem) setHero(activeItem, activeIndex + 1);
     });
 
+    // Netlify Forms AJAX submit
     function encodeFormData(form) {
       const data = new FormData(form);
       const p = new URLSearchParams();
@@ -726,13 +673,12 @@
 
       try {
         const body = encodeFormData(contactForm);
-        const res = await fetch("/", {
+        const res = await fetch(location.pathname, {
           method: "POST",
           headers: { "Content-Type": "application/x-www-form-urlencoded" },
           body
         });
         if (!res.ok) throw new Error("Bad response");
-
         formSuccess.style.display = "block";
         sendBtn.disabled = false;
       } catch (err) {
