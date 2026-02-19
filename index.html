@@ -24,7 +24,7 @@
     .adminBadge{display:none;padding:6px 10px;border-radius:999px;border:1px dashed var(--border);color:var(--muted)}
     .status{display:none;color:var(--muted);font-size:12px}
 
-    main{max-width:1100px;margin:0 auto;padding:0 18px 40px}
+    main{max-width:1100px;margin:0 auto;padding:0 18px 18px}
     .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
     @media (max-width:980px){.grid{grid-template-columns:repeat(2,1fr)}}
     @media (max-width:640px){.grid{grid-template-columns:1fr}}
@@ -36,7 +36,12 @@
     .content{padding:12px 12px 14px}
     .titleRow{display:flex;gap:10px;align-items:flex-start}
     .title{margin:0;font-size:16px;line-height:1.25}
-    .price{margin-left:auto;font-weight:700;color:#d7f5df}
+
+    /* Price styling: old -> new */
+    .priceWrap{margin-left:auto;display:flex;gap:8px;align-items:baseline;flex-wrap:wrap;justify-content:flex-end}
+    .oldPrice{color:rgba(231,237,245,.55);text-decoration:line-through;text-decoration-thickness:2px;font-size:12px}
+    .newPrice{font-weight:800;font-size:16px;color:#d7f5df}
+
     .desc{margin:8px 0 0;color:var(--muted);font-size:13px}
 
     /* SOLD visuals */
@@ -47,10 +52,10 @@
       background:rgba(11,13,18,.72);
       backdrop-filter: blur(2px);
       z-index:2;
-      pointer-events:none; /* don't block admin button */
+      pointer-events:none;
     }
     .soldStamp{
-      display:none; /* hidden unless sold */
+      display:none;
       position:absolute;
       top:12px;
       left:12px;
@@ -66,28 +71,31 @@
     .sold .soldOverlay{display:block}
     .sold .soldStamp{display:block}
     .sold .thumb img{filter:grayscale(1) contrast(.9) brightness(.85)}
-    .sold .price{color:rgba(231,237,245,.55)}
+    .sold .newPrice{color:rgba(231,237,245,.55)}
     .sold .title{color:rgba(231,237,245,.75)}
     .sold .desc{color:rgba(154,164,178,.75)}
 
-    /* Admin-only: "Mark Available" button shown ONLY when sold */
-    .adminAvailBtn{
+    /* Admin controls on image */
+    .adminBtnRow{
       position:absolute;
       bottom:10px;
       right:10px;
-      background:rgba(0,0,0,.70);
+      display:flex;
+      gap:8px;
+      z-index:4;
+    }
+    .adminBtn{
+      background:rgba(0,0,0,.72);
       border:1px solid rgba(255,255,255,.28);
       color:var(--text);
       padding:7px 10px;
       border-radius:10px;
       font-size:12px;
       cursor:pointer;
-      z-index:4;
-      display:none;
     }
-    .adminAvailBtn:hover{background:rgba(0,0,0,.85); border-color:rgba(255,255,255,.45)}
-    .adminAvailBtn:active{transform:translateY(1px)}
-    .adminAvailBtn:focus{outline:2px solid rgba(110,168,254,.55); outline-offset:2px}
+    .adminBtn:hover{background:rgba(0,0,0,.85); border-color:rgba(255,255,255,.45)}
+    .adminBtn:active{transform:translateY(1px)}
+    .adminBtn:focus{outline:2px solid rgba(110,168,254,.55); outline-offset:2px}
 
     .btn{background:rgba(255,255,255,.06);border:1px solid var(--border);color:var(--text);padding:8px 10px;border-radius:12px;cursor:pointer}
     .btn:hover{border-color:rgba(255,255,255,.18)}
@@ -117,14 +125,23 @@
     aside{padding:12px;border-left:1px solid var(--border)}
     @media (max-width:860px){aside{border-left:0;border-top:1px solid var(--border)}}
     .asideTitle{margin:0 0 6px;font-size:18px}
-    .asidePrice{font-weight:800;font-size:18px;margin:0 0 10px}
+    .asidePrice{margin:0 0 10px}
     .asideDesc{color:var(--muted);margin:0 0 14px}
+
+    .priceBlock{display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}
+    .priceBlock .oldPrice{font-size:13px}
+    .priceBlock .newPrice{font-size:20px}
+
+    .kv{margin:10px 0 0;color:var(--muted);font-size:13px}
+    .kv b{color:rgba(231,237,245,.85);font-weight:600}
+    .kv a{color:var(--accent);text-decoration:none}
+    .kv a:hover{text-decoration:underline}
 
     form{display:grid;gap:10px}
     textarea{min-height:90px;resize:vertical}
     .field{display:grid;gap:6px}
     label{font-size:12px;color:var(--muted)}
-    input[type="text"],input[type="email"],textarea{
+    input[type="text"],input[type="email"],input[type="number"],textarea{
       background:rgba(255,255,255,.04);
       border:1px solid var(--border);
       border-radius:12px;
@@ -137,6 +154,22 @@
     .foot{max-width:1100px;margin:0 auto;padding:18px;color:var(--muted);font-size:12px}
     .hint{color:var(--muted);font-size:12px;margin:0}
     code{color:#cfe2ff}
+
+    /* Admin edit price modal */
+    .miniModal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.62);align-items:center;justify-content:center;padding:18px;z-index:60}
+    .miniModal.open{display:flex}
+    .miniDialog{max-width:520px;width:100%;background:rgba(17,21,37,.98);border:1px solid var(--border);border-radius:18px;overflow:hidden;box-shadow:0 18px 70px rgba(0,0,0,.55)}
+    .miniTop{display:flex;gap:10px;align-items:center;padding:12px;border-bottom:1px solid var(--border)}
+    .miniBody{padding:12px}
+    .miniActions{display:flex;gap:10px;justify-content:flex-end;margin-top:10px}
+
+    /* Map section */
+    .mapWrap{max-width:1100px;margin:0 auto;padding:10px 18px 40px}
+    .mapCard{border:1px solid var(--border);border-radius:18px;overflow:hidden;background:rgba(255,255,255,.03);box-shadow:0 10px 30px rgba(0,0,0,.25)}
+    .mapHeader{padding:12px 12px;border-bottom:1px solid var(--border)}
+    .mapHeader b{display:block;margin-bottom:4px}
+    .mapHeader span{color:var(--muted);font-size:13px}
+    .mapCard iframe{width:100%;height:340px;border:0;display:block}
   </style>
 </head>
 <body>
@@ -168,31 +201,67 @@
     <div id="grid" class="grid"></div>
   </main>
 
-  <!-- Modal -->
+  <div class="mapWrap">
+    <div class="mapCard">
+      <div class="mapHeader">
+        <b>Collection available at</b>
+        <span>The Gessner, 3 Watermead Way, London, N17 9RF</span>
+      </div>
+      <iframe
+        loading="lazy"
+        referrerpolicy="no-referrer-when-downgrade"
+        src="https://www.google.com/maps?q=The%20Gessner%2C%203%20Watermead%20Way%2C%20London%2C%20N17%209RF&output=embed">
+      </iframe>
+    </div>
+  </div>
+
+  <div class="foot">
+    <p class="hint">
+      Admin: add <code>?admin=1</code>. You can mark SOLD items available again, and edit prices. SOLD items are non-interactive for visitors.
+    </p>
+  </div>
+
+  <!-- Item Modal -->
   <div id="modal" class="modal" aria-hidden="true">
     <div class="dialog" role="dialog" aria-modal="true">
       <div class="dialogTop">
         <b id="modalTitle">Item</b>
-        <button id="closeBtn" class="btn close">Close</button>
+        <button id="closeBtn" class="btn close" type="button">Close</button>
       </div>
       <div class="dialogBody">
         <div class="viewer">
           <div class="hero">
             <img id="heroImg" alt="" />
-            <button id="prevBtn" class="navBtn prev">◀</button>
-            <button id="nextBtn" class="navBtn next">▶</button>
+            <button id="prevBtn" class="navBtn prev" type="button">◀</button>
+            <button id="nextBtn" class="navBtn next" type="button">▶</button>
           </div>
           <div id="thumbs" class="thumbs"></div>
         </div>
         <aside>
           <h2 id="asideTitle" class="asideTitle"></h2>
-          <p id="asidePrice" class="asidePrice"></p>
+
+          <div id="asidePrice" class="asidePrice"></div>
+
           <p id="asideDesc" class="asideDesc"></p>
 
-          <!-- Contact form: keep Formspree OR swap to Netlify Forms later -->
-          <form id="contact" method="POST" action="https://formspree.io/f/YOUR_FORM_ID">
+          <div id="asideDims" class="kv" style="display:none"></div>
+          <div id="asideLink" class="kv" style="display:none"></div>
+
+          <!-- Netlify Forms -->
+          <form id="contact"
+                name="contact"
+                method="POST"
+                data-netlify="true"
+                data-netlify-honeypot="bot-field">
+            <input type="hidden" name="form-name" value="contact" />
+            <p style="display:none">
+              <label>Don’t fill this out if you’re human: <input name="bot-field" /></label>
+            </p>
+
             <input type="hidden" name="item_id" id="f_item_id" />
             <input type="hidden" name="item_name" id="f_item_name" />
+            <input type="hidden" name="item_price_now" id="f_item_price_now" />
+
             <div class="field">
               <label for="f_name">Your name</label>
               <input id="f_name" name="name" type="text" required />
@@ -209,6 +278,36 @@
             <p class="hint">Tip: include your preferred pickup time.</p>
           </form>
         </aside>
+      </div>
+    </div>
+  </div>
+
+  <!-- Admin: Edit Prices Modal -->
+  <div id="priceModal" class="miniModal" aria-hidden="true">
+    <div class="miniDialog" role="dialog" aria-modal="true">
+      <div class="miniTop">
+        <b id="priceModalTitle">Edit prices</b>
+        <button id="priceCloseBtn" class="btn close" type="button">Close</button>
+      </div>
+      <div class="miniBody">
+        <form id="priceForm">
+          <input type="hidden" id="p_item_id" />
+          <div class="field">
+            <label for="p_original">Original price (GBP)</label>
+            <input id="p_original" type="number" min="0" step="1" placeholder="e.g. 100" />
+          </div>
+          <div class="field">
+            <label for="p_current">Current price (GBP)</label>
+            <input id="p_current" type="number" min="0" step="1" placeholder="e.g. 45" required />
+          </div>
+          <div class="miniActions">
+            <button class="btn" type="button" id="priceCancel">Cancel</button>
+            <button class="btn" type="submit">Save</button>
+          </div>
+          <p class="hint" style="margin-top:10px">
+            Requires <code>/.netlify/functions/update-prices</code>.
+          </p>
+        </form>
       </div>
     </div>
   </div>
@@ -235,8 +334,10 @@
     }
 
     function moneyGBP(n){
-      try { return new Intl.NumberFormat("en-GB", { style:"currency", currency:"GBP" }).format(n); }
-      catch { return `£${Number(n).toFixed(0)}`; }
+      const v = Number(n);
+      if (!Number.isFinite(v)) return "";
+      try { return new Intl.NumberFormat("en-GB", { style:"currency", currency:"GBP", maximumFractionDigits:0 }).format(v); }
+      catch { return `£${Math.round(v)}`; }
     }
 
     function escapeHtml(str){
@@ -250,7 +351,7 @@
 
     function match(item, query){
       if (!query) return true;
-      const hay = [item.title, item.description, ...(item.tags||[])].join(" ").toLowerCase();
+      const hay = [item.title, item.description, item.dimensions, item.item_link].filter(Boolean).join(" ").toLowerCase();
       return hay.includes(query.toLowerCase());
     }
 
@@ -266,8 +367,10 @@
         id: "demo-1",
         title: "Demo item (items function unavailable)",
         price_gbp: 1,
+        original_price: null,
         description: "If you see this, /.netlify/functions/items failed.",
-        tags: [],
+        dimensions: null,
+        item_link: null,
         images: [],
         sold: false,
         sort_order: 10
@@ -288,8 +391,10 @@
           title: r.title,
           description: r.description ?? "",
           price_gbp: Number(r.price_gbp ?? 0),
+          original_price: (r.original_price === null || r.original_price === undefined || r.original_price === "") ? null : Number(r.original_price),
+          dimensions: (r.dimensions ?? null) || null,
+          item_link: (r.item_link ?? null) || null,
           images: Array.isArray(r.images) ? r.images : [],
-          tags: Array.isArray(r.tags) ? r.tags : [],
           sold: !!r.sold,
           sort_order: Number(r.sort_order ?? 0)
         })).sort((a,b) => (a.sort_order - b.sort_order));
@@ -303,25 +408,93 @@
       }
     }
 
-    async function markAvailable(item) {
+    async function postAdminJson(url, payload) {
       const adminSecret = prompt("Admin secret:");
-      if (!adminSecret) return;
+      if (!adminSecret) return { ok:false, cancelled:true };
 
-      setStatus("Updating…");
-      try {
-        const res = await fetch("/.netlify/functions/toggle-sold", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "x-admin-secret": adminSecret
-          },
-          body: JSON.stringify({ id: item.id, sold: false })
-        });
-        if (!res.ok) throw new Error(`toggle-sold HTTP ${res.status}`);
-        await refreshItems();
-      } catch (err) {
-        setStatus("Update failed.");
+      const res = await fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-admin-secret": adminSecret
+        },
+        body: JSON.stringify(payload)
+      });
+      if (!res.ok) {
+        return { ok:false, status: res.status };
       }
+      return { ok:true, data: await res.json().catch(() => null) };
+    }
+
+    async function markAvailable(item) {
+      setStatus("Updating…");
+      const r = await postAdminJson("/.netlify/functions/toggle-sold", { id: item.id, sold: false });
+      if (!r.ok) { setStatus("Update failed."); return; }
+      await refreshItems();
+    }
+
+    // Admin price edit modal
+    const priceModal = document.getElementById("priceModal");
+    const priceCloseBtn = document.getElementById("priceCloseBtn");
+    const priceCancel = document.getElementById("priceCancel");
+    const priceForm = document.getElementById("priceForm");
+    const priceModalTitle = document.getElementById("priceModalTitle");
+    const p_item_id = document.getElementById("p_item_id");
+    const p_original = document.getElementById("p_original");
+    const p_current = document.getElementById("p_current");
+
+    function openPriceModal(item) {
+      priceModalTitle.textContent = `Edit prices: ${item.title}`;
+      p_item_id.value = item.id;
+      p_original.value = (item.original_price ?? "") === null ? "" : (item.original_price ?? "");
+      p_current.value = item.price_gbp ?? "";
+      priceModal.classList.add("open");
+      priceModal.setAttribute("aria-hidden", "false");
+      document.body.style.overflow = "hidden";
+      p_current.focus();
+    }
+    function closePriceModal() {
+      priceModal.classList.remove("open");
+      priceModal.setAttribute("aria-hidden", "true");
+      document.body.style.overflow = "";
+    }
+    priceCloseBtn.addEventListener("click", closePriceModal);
+    priceCancel.addEventListener("click", closePriceModal);
+    priceModal.addEventListener("click", (e) => { if (e.target === priceModal) closePriceModal(); });
+
+    priceForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const id = p_item_id.value;
+      const originalVal = p_original.value === "" ? null : Number(p_original.value);
+      const currentVal = Number(p_current.value);
+
+      if (!id || !Number.isFinite(currentVal)) return;
+
+      setStatus("Saving prices…");
+      const r = await postAdminJson("/.netlify/functions/update-prices", {
+        id,
+        original_price: (originalVal === null ? null : Math.round(originalVal)),
+        price_gbp: Math.round(currentVal)
+      });
+      if (!r.ok) { setStatus("Price update failed."); return; }
+      closePriceModal();
+      await refreshItems();
+    });
+
+    function priceHtml(item, big=false) {
+      const now = moneyGBP(item.price_gbp);
+      const orig = (item.original_price !== null && Number.isFinite(item.original_price) && item.original_price > 0)
+        ? moneyGBP(item.original_price)
+        : "";
+
+      if (!orig || orig === now) {
+        return `<span class="newPrice" style="${big ? 'font-size:20px;' : ''}">${now}</span>`;
+      }
+
+      return `
+        <span class="oldPrice">${orig}</span>
+        <span class="newPrice" style="${big ? 'font-size:20px;' : ''}">${now}</span>
+      `;
     }
 
     function render(){
@@ -343,19 +516,22 @@
         const img0 = item.images?.[0] || "";
         const isInteractive = isAdmin || !item.sold;
 
-        const adminBtnHtml = (isAdmin && item.sold)
-          ? `<button class="adminAvailBtn" type="button">Mark Available</button>`
-          : "";
+        const adminBtns = isAdmin ? `
+          <div class="adminBtnRow">
+            ${item.sold ? `<button class="adminBtn adminAvail" type="button">Mark Available</button>` : ``}
+            <button class="adminBtn adminEdit" type="button">Edit Prices</button>
+          </div>
+        ` : "";
 
         card.innerHTML = `
           <div class="thumb ${isInteractive ? "clickable" : ""}" role="${isInteractive ? "button" : "img"}" tabindex="${isInteractive ? "0" : "-1"}" aria-label="${isInteractive ? "Open photos" : "Sold item"}" aria-disabled="${isInteractive ? "false" : "true"}">
             ${img0 ? `<img src="${img0}" alt="${escapeHtml(item.title)}" loading="lazy" />` : `<div style="padding:18px;color:var(--muted)">No image</div>`}
-            ${adminBtnHtml}
+            ${adminBtns}
           </div>
           <div class="content">
             <div class="titleRow">
               <h3 class="title">${escapeHtml(item.title)}</h3>
-              <div class="price">${moneyGBP(item.price_gbp)}</div>
+              <div class="priceWrap">${priceHtml(item,false)}</div>
             </div>
             <p class="desc">${escapeHtml(item.description)}</p>
           </div>
@@ -372,14 +548,19 @@
           });
         }
 
-        if (isAdmin && item.sold){
-          const btn = card.querySelector(".adminAvailBtn");
-          if (btn){
-            btn.style.display = "block";
-            btn.addEventListener("click", async (e) => {
-              e.preventDefault();
-              e.stopPropagation();
+        if (isAdmin){
+          const availBtn = card.querySelector(".adminAvail");
+          if (availBtn){
+            availBtn.addEventListener("click", async (e) => {
+              e.preventDefault(); e.stopPropagation();
               await markAvailable(item);
+            });
+          }
+          const editBtn = card.querySelector(".adminEdit");
+          if (editBtn){
+            editBtn.addEventListener("click", (e) => {
+              e.preventDefault(); e.stopPropagation();
+              openPriceModal(item);
             });
           }
         }
@@ -388,7 +569,7 @@
       }
     }
 
-    // Modal carousel
+    // Item modal carousel
     const modal = document.getElementById("modal");
     const closeBtn = document.getElementById("closeBtn");
     const modalTitle = document.getElementById("modalTitle");
@@ -399,9 +580,12 @@
     const asideTitle = document.getElementById("asideTitle");
     const asidePrice = document.getElementById("asidePrice");
     const asideDesc = document.getElementById("asideDesc");
+    const asideDims = document.getElementById("asideDims");
+    const asideLink = document.getElementById("asideLink");
 
     const f_item_id = document.getElementById("f_item_id");
     const f_item_name = document.getElementById("f_item_name");
+    const f_item_price_now = document.getElementById("f_item_price_now");
     const f_msg = document.getElementById("f_msg");
 
     let activeItem = null;
@@ -413,11 +597,30 @@
 
       modalTitle.textContent = item.title;
       asideTitle.textContent = item.title;
-      asidePrice.textContent = moneyGBP(item.price_gbp) + (item.sold ? " (SOLD)" : "");
+
+      asidePrice.innerHTML = `<div class="priceBlock">${priceHtml(item,true)}</div>`;
       asideDesc.textContent = item.description;
+
+      if (item.dimensions){
+        asideDims.style.display = "block";
+        asideDims.innerHTML = `<b>Dimensions:</b> ${escapeHtml(item.dimensions)}`;
+      } else {
+        asideDims.style.display = "none";
+        asideDims.innerHTML = "";
+      }
+
+      if (item.item_link){
+        asideLink.style.display = "block";
+        const safeUrl = String(item.item_link);
+        asideLink.innerHTML = `<b>Item link:</b> <a href="${safeUrl}" target="_blank" rel="noopener noreferrer">Open original listing</a>`;
+      } else {
+        asideLink.style.display = "none";
+        asideLink.innerHTML = "";
+      }
 
       f_item_id.value = item.id;
       f_item_name.value = item.title;
+      f_item_price_now.value = moneyGBP(item.price_gbp);
       f_msg.value = `Hi — I'm interested in: ${item.title} (${moneyGBP(item.price_gbp)}). Is it still available?`;
 
       buildThumbs(item);
@@ -472,8 +675,9 @@
     closeBtn.addEventListener("click", closeModal);
     modal.addEventListener("click", (e) => { if (e.target === modal) closeModal(); });
     window.addEventListener("keydown", (e) => {
+      if (!modal.classList.contains("open") && !priceModal.classList.contains("open")) return;
+      if (e.key === "Escape") { if (priceModal.classList.contains("open")) closePriceModal(); else closeModal(); }
       if (!modal.classList.contains("open")) return;
-      if (e.key === "Escape") closeModal();
       if (e.key === "ArrowLeft" && activeItem) setHero(activeItem, activeIndex - 1);
       if (e.key === "ArrowRight" && activeItem) setHero(activeItem, activeIndex + 1);
     });

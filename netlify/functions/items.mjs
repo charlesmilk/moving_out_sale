@@ -5,7 +5,7 @@ export default async () => {
     const sql = neon(); // uses NETLIFY_DATABASE_URL in Netlify
 
     const rows = await sql`
-      select id, title, description, price_gbp, images, sold, sort_order
+      select id, title, description, price_gbp, original_price, dimensions, item_link, images, sold, sort_order
       from items
       order by sort_order asc, updated_at desc
     `;
