@@ -102,16 +102,16 @@
     .btn{background:rgba(255,255,255,.06);border:1px solid var(--border);color:var(--text);padding:8px 10px;border-radius:12px;cursor:pointer}
     .btn:hover{border-color:rgba(255,255,255,.18)}
 
-    .modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.62);align-items:center;justify-content:center;padding:18px;z-index:50}
+    .modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.62);align-items:center;justify-content:center;padding:18px;z-index:50;overflow:auto;-webkit-overflow-scrolling:touch}
     .modal.open{display:flex}
-    .dialog{max-width:980px;width:100%;background:rgba(17,21,37,.96);border:1px solid var(--border);border-radius:20px;overflow:hidden;box-shadow:0 18px 70px rgba(0,0,0,.55)}
-    .dialogTop{display:flex;gap:10px;align-items:center;padding:12px 12px;border-bottom:1px solid var(--border)}
+    .dialog{max-width:980px;width:100%;background:rgba(17,21,37,.96);border:1px solid var(--border);border-radius:20px;overflow:hidden;box-shadow:0 18px 70px rgba(0,0,0,.55);max-height:calc(100dvh - 36px);display:flex;flex-direction:column}
+    .dialogTop{display:flex;gap:10px;align-items:center;padding:12px 12px;border-bottom:1px solid var(--border);position:sticky;top:0;background:rgba(17,21,37,.98);z-index:2}
     .dialogTop b{font-size:14px}
     .close{margin-left:auto}
 
-    .dialogBody{display:grid;grid-template-columns: 2fr 1fr;gap:0}
+    .dialogBody{display:grid;grid-template-columns: 2fr 1fr;gap:0;min-height:0;flex:1;overflow:hidden}
     @media (max-width:860px){.dialogBody{grid-template-columns:1fr}}
-    .viewer{padding:12px}
+    .viewer{padding:12px;min-height:0;overflow:auto;-webkit-overflow-scrolling:touch}
     .hero{position:relative;aspect-ratio: 16/10;background:#070810;border-radius:14px;overflow:hidden;border:1px solid var(--border)}
     .hero img{width:100%;height:100%;object-fit:contain;background:#05060a}
     .navBtn{position:absolute;top:50%;transform:translateY(-50%);background:rgba(0,0,0,.35);border:1px solid rgba(255,255,255,.16);padding:8px 10px;border-radius:12px;cursor:pointer}
@@ -123,7 +123,7 @@
     .thumbs img{width:100%;height:100%;object-fit:cover;display:block}
     .thumbs .active{border-color:rgba(110,168,254,.7)}
 
-    aside{padding:12px;border-left:1px solid var(--border)}
+    aside{padding:12px;border-left:1px solid var(--border);min-height:0;overflow:auto;-webkit-overflow-scrolling:touch}
     @media (max-width:860px){aside{border-left:0;border-top:1px solid var(--border)}}
     .asideTitle{margin:0 0 6px;font-size:18px}
     .asidePrice{margin:0 0 10px}
@@ -175,6 +175,14 @@
     .mapHeader b{display:block;margin-bottom:4px}
     .mapHeader span{color:var(--muted);font-size:13px}
     .mapCard iframe{width:100%;height:340px;border:0;display:block}
+  
+    @media (max-width:640px){
+      .modal{padding:10px;align-items:flex-start}
+      .dialog{max-height:calc(100dvh - 20px)}
+      .hero{aspect-ratio: 4/3}
+      .thumbs button{width:64px;height:48px}
+    }
+
   </style>
 </head>
 <body>
@@ -320,6 +328,27 @@
     const statusEl = document.getElementById("status");
     if (isAdmin) adminBadge.style.display = "inline-block";
 
+    // iOS-safe scroll lock (prevents background page scroll while modal is open)
+    let __scrollY = 0;
+    function lockPageScroll() {
+      __scrollY = window.scrollY || 0;
+      document.body.style.position = "fixed";
+      document.body.style.top = `-${__scrollY}px`;
+      document.body.style.left = "0";
+      document.body.style.right = "0";
+      document.body.style.width = "100%";
+    }
+    function unlockPageScroll() {
+      const y = __scrollY || 0;
+      document.body.style.position = "";
+      document.body.style.top = "";
+      document.body.style.left = "";
+      document.body.style.right = "";
+      document.body.style.width = "";
+      window.scrollTo(0, y);
+    }
+
+
     function setStatus(msg) {
       if (!msg) {
         statusEl.style.display = "none";
@@ -442,13 +471,13 @@
       p_current.value = item.price_gbp ?? "";
       priceModal.classList.add("open");
       priceModal.setAttribute("aria-hidden", "false");
-      document.body.style.overflow = "hidden";
+      lockPageScroll();
       p_current.focus();
     }
     function closePriceModal() {
       priceModal.classList.remove("open");
       priceModal.setAttribute("aria-hidden", "true");
-      document.body.style.overflow = "";
+      unlockPageScroll();
     }
     priceCloseBtn.addEventListener("click", closePriceModal);
     priceCancel.addEventListener("click", closePriceModal);
@@ -616,13 +645,13 @@
 
       modal.classList.add("open");
       modal.setAttribute("aria-hidden", "false");
-      document.body.style.overflow = "hidden";
+      lockPageScroll();
     }
 
     function closeModal(){
       modal.classList.remove("open");
       modal.setAttribute("aria-hidden", "true");
-      document.body.style.overflow = "";
+      unlockPageScroll();
       activeItem = null;
     }
 
