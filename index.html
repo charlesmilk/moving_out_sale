@@ -83,12 +83,12 @@
       z-index:3;
       pointer-events:none;
     }
-    .sold .soldOverlay{display:block}
-    .sold .soldStamp{display:block}
-    .sold .thumb img{filter:grayscale(1) contrast(.9) brightness(.85)}
-    .sold .newPrice{color:rgba(231,237,245,.55)}
-    .sold .title{color:rgba(231,237,245,.75)}
-    .sold .desc{color:rgba(154,164,178,.75)}
+    .card.sold .soldOverlay{display:block}
+    .card.sold .soldStamp{display:block}
+    .card.sold .thumb img{filter:grayscale(1) contrast(.9) brightness(.85)}
+    .card.sold .newPrice{color:rgba(231,237,245,.55)}
+    .card.sold .title{color:rgba(231,237,245,.75)}
+    .card.sold .desc{color:rgba(154,164,178,.75)}
 
     .adminBtnRow{
       position:absolute;
@@ -229,6 +229,12 @@
         src="https://www.google.com/maps?q=The%20Gessner%2C%203%20Watermead%20Way%2C%20London%2C%20N17%209RF&output=embed">
       </iframe>
     </div>
+  </div>
+
+  <div class="foot">
+    <p class="hint">
+      Admin: add <code>?admin=1</code>. You can mark items sold/available and edit prices. SOLD items are non-interactive for visitors.
+    </p>
   </div>
 
   <div id="modal" class="modal" aria-hidden="true">
