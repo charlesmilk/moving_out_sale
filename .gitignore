@@ -1,0 +1,12 @@
+# macOS
+.DS_Store
+__MACOSX/
+
+# Node
+node_modules/
+
+# Netlify local
+.netlify/
+
+# Logs
+*.log
