@@ -169,6 +169,17 @@
       </select>
     </div>
 
+    <div class="pill">
+      Sort:
+      <select id="sort">
+        <option value="price_asc" selected>Price (low → high)</option>
+        <option value="price_desc">Price (high → low)</option>
+        <option value="sold_last">Sold status (available first)</option>
+        <option value="sold_first">Sold status (sold first)</option>
+      </select>
+    </div>
+
+
     <div class="pill status" id="status"></div>
 
     <div class="spacer"></div>
@@ -294,6 +305,7 @@
     const grid = document.getElementById("grid");
     const q = document.getElementById("q");
     const filter = document.getElementById("filter");
+    const sort = document.getElementById("sort");
     const adminBadge = document.getElementById("adminBadge");
     const statusEl = document.getElementById("status");
     if (isAdmin) adminBadge.style.display = "inline-block";
@@ -470,7 +482,21 @@
 
     function render(){
       const query = q.value.trim();
-      const list = ITEMS.filter(it => match(it, query)).filter(it => passesFilter(it));
+      const list = ITEMS
+        .filter(it => match(it, query))
+        .filter(it => passesFilter(it))
+        .slice();
+
+      const s = sort?.value || "price_asc";
+      if (s === "price_asc") {
+        list.sort((a,b) => (Number(a.price_gbp)||0) - (Number(b.price_gbp)||0) || (a.sort_order - b.sort_order));
+      } else if (s === "price_desc") {
+        list.sort((a,b) => (Number(b.price_gbp)||0) - (Number(a.price_gbp)||0) || (a.sort_order - b.sort_order));
+      } else if (s === "sold_first") {
+        list.sort((a,b) => (b.sold?1:0) - (a.sold?1:0) || (Number(a.price_gbp)||0) - (Number(b.price_gbp)||0));
+      } else if (s === "sold_last") {
+        list.sort((a,b) => (a.sold?1:0) - (b.sold?1:0) || (Number(a.price_gbp)||0) - (Number(b.price_gbp)||0));
+      }
 
       grid.innerHTML = "";
       if (list.length === 0){
@@ -689,6 +715,7 @@
 
     q.addEventListener("input", render);
     filter.addEventListener("change", render);
+    sort.addEventListener("change", render);
 
     refreshItems();
   </script>
