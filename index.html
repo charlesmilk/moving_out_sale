@@ -153,8 +153,7 @@
 <body>
   <header>
     <h1>Moving Sale</h1>
-    <p class="sub">Browse items, open photos, and send a message to buy.</p>
-    <p class="sub"> Pickup only. Collection available in <a href="https://www.google.com/maps/search/?api=1&query=Tottenham+Hale+London+N17+9RF" target="_blank" rel="noopener noreferrer" style="color:#6ea8fe;text-decoration:none;">Tottenham Hale (N17)</a> — scroll down for more info.</p>
+    <p class="sub">Browse items, open photos, and send a message to buy. Collection available in <a href="https://www.google.com/maps/search/?api=1&query=Tottenham+Hale+London+N17+9RF" target="_blank" rel="noopener noreferrer" style="color:#6ea8fe;text-decoration:none;">Tottenham Hale</a> — scroll down for more info.</p>
   </header>
 
   <div class="toolbar">
@@ -572,6 +571,8 @@
     const formSuccess = document.getElementById("formSuccess");
     const formError = document.getElementById("formError");
 
+    let isSubmitting = false;
+
     const f_item_id = document.getElementById("f_item_id");
     const f_item_name = document.getElementById("f_item_name");
     const f_item_price_now = document.getElementById("f_item_price_now");
@@ -690,6 +691,11 @@
 
     contactForm.addEventListener("submit", async (e) => {
       e.preventDefault();
+
+      // hard guard against double submit
+      if (isSubmitting) return;
+      isSubmitting = true;
+
       formSuccess.style.display = "none";
       formError.style.display = "none";
       sendBtn.disabled = true;
@@ -703,9 +709,10 @@
         });
         if (!res.ok) throw new Error("Bad response");
         formSuccess.style.display = "block";
-        sendBtn.disabled = false;
       } catch (err) {
         formError.style.display = "block";
+      } finally {
+        isSubmitting = false;
         sendBtn.disabled = false;
       }
     });
